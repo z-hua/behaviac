@@ -26,24 +26,7 @@ namespace PluginBehaviac.NodeExporters
     {
         protected override string GetNodeBehavior(Node node, string indent, string nodeName, string agentType, string btClassName)
         {
-            return "performer.NewAction(" + generateActionCallback(node) + ")";
-        }
-
-        private string generateActionCallback(Node node)
-        {
-            Action action = node as Action;
-
-            if (action == null)
-            {
-                return "";
-            }
-
-            if (action.Method != null && !isNullMethod(action.Method))
-            {
-                MethodCsExporter.GenerateClassConstructor(node, action.Method, stream, indent, "method");
-            }
-
-            return "";
+            return "performer.NewAction(_o.node"+node.Id+"_callback)";
         }
 
         private bool isNullMethod(MethodDef method)
@@ -74,42 +57,6 @@ namespace PluginBehaviac.NodeExporters
             return (action != null);
         }
 
-        protected override void GenerateConstructor(Node node, StringWriter stream, string indent, string className)
-        {
-            base.GenerateConstructor(node, stream, indent, className);
-
-            Action action = node as Action;
-
-            if (action == null)
-            {
-                return;
-            }
-
-            stream.WriteLine("{0}\t\t\tthis.m_resultOption = {1};", indent, getResultOptionStr(action.ResultOption));
-
-            if (action.Method != null && !isNullMethod(action.Method))
-            {
-                MethodCsExporter.GenerateClassConstructor(node, action.Method, stream, indent, "method");
-            }
-        }
-
-        protected override void GenerateMember(Node node, StringWriter stream, string indent)
-        {
-            base.GenerateMember(node, stream, indent);
-
-            Action action = node as Action;
-
-            if (action == null)
-            {
-                return;
-            }
-
-            if (action.Method != null && !isNullMethod(action.Method))
-            {
-                MethodCsExporter.GenerateClassMember(action.Method, stream, indent, "method");
-            }
-        }
-
         protected override void GenerateMethod(Node node, StringWriter stream, string indent)
         {
             base.GenerateMethod(node, stream, indent);
@@ -121,14 +68,13 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("{0}\t\tprotected override EBTStatus update_impl(behaviac.Agent pAgent, behaviac.EBTStatus childStatus)", indent);
-            stream.WriteLine("{0}\t\t{{", indent);
+            stream.WriteLine("func (_o *{0})node{1}_callback() {{", ((Node)node.Behavior).Label, node.Id);
 
             string resultStatus = getResultOptionStr(action.ResultOption);
 
             if (action.Method != null && !isNullMethod(action.Method))
             {
-                string nativeReturnType = DataCsExporter.GetGeneratedNativeType(action.Method.NativeReturnType);
+                string nativeReturnType = DataGoExporter.GetGeneratedNativeType(action.Method.NativeReturnType);
                 string method = MethodCsExporter.GenerateCode(node, action.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "method");
 
                 if ("behaviac.EBTStatus" == nativeReturnType)
@@ -199,8 +145,8 @@ namespace PluginBehaviac.NodeExporters
                 }
             }
 
-            stream.WriteLine("{0}\t\t\treturn {1};", indent, resultStatus);
-            stream.WriteLine("{0}\t\t}}", indent);
+            stream.WriteLine("\treturn {1};", resultStatus);
+            stream.WriteLine("}");
         }
     }
 }

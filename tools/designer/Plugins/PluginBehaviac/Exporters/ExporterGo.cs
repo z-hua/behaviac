@@ -196,13 +196,12 @@ namespace PluginBehaviac.Exporters
             // write comments
             file.WriteLine("// Source file: {0}\r\n", filename);
 
-            //string btClassName = string.Format("bt_{0}", getValidFilename(filename));
             string btClassName = getValidFilename(filename);
             string agentType = behavior.AgentType.Name;
 
             // create the bt class
             file.WriteLine("// {0}", ((Node)behavior).CommentText);
-            file.WriteLine("type {0} struct {{", btClassName);
+            file.WriteLine("type {0} struct {{", ((Node)behavior).Label);
             file.WriteLine("}");
             file.WriteLine();
 
@@ -216,8 +215,8 @@ namespace PluginBehaviac.Exporters
             }
 
             // export the build function
-            file.WriteLine("func (_o *{0}) NewTree() *bt.Tree {{", filename);
-            file.WriteLine("\ttree := bt.NewTree(\"{0}\")", filename);
+            file.WriteLine("func (_o *{0}) NewTree() *bt.Tree {{", ((Node)behavior).Label);
+            file.WriteLine("\ttree := bt.NewTree(\"{0}\")", ((Node)behavior).Label);
 
             if (((Behavior)behavior).DescriptorRefs.Count > 0)
             {

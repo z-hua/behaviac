@@ -76,23 +76,7 @@ namespace PluginBehaviac.NodeExporters
         {
             if (ShouldGenerateClass(node))
             {
-                string className = GetGeneratedClassName(node, btClassName, nodeName);
-
-                stream.WriteLine("{0}\t[behaviac.GeneratedTypeMetaInfo()]", indent);
-                stream.WriteLine("{0}\tclass {1} : behaviac.{2}\r\n{0}\t{{", indent, className, node.ExportClass);
-
-                stream.WriteLine("{0}\t\tpublic {1}()", indent, className);
-                stream.WriteLine("{0}\t\t{{", indent);
-
-                GenerateConstructor(node, stream, indent, className);
-
-                stream.WriteLine("{0}\t\t}}", indent);
-
                 GenerateMethod(node, stream, indent);
-
-                GenerateMember(node, stream, indent);
-
-                stream.WriteLine("{0}\t}}\r\n", indent);
             }
         }
 
