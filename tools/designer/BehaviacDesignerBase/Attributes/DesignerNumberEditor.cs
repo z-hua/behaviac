@@ -211,7 +211,7 @@ namespace Behaviac.Design.Attributes
                          (decimal)uint.MaxValue,
                          (decimal)1);
 
-                int val = (int)arrayProperty.Value;
+                uint val = (uint)arrayProperty.Value;
                 value = (decimal)val;
 
             }

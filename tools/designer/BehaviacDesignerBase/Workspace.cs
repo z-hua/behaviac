@@ -96,7 +96,7 @@ namespace Behaviac.Design
                 {
                     _language = value;
 
-                    Debug.Check(value == "cpp" || value == "cs", "Only cpp or cs are supported now!");
+                    Debug.Check(value == "cpp" || value == "cs" || value == "go", "Only cpp, cs or go are supported now!");
                 }
             }
         }

@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="Attributes\DesignerPropertyUtility.cs" />
     <Compile Include="CRC32.cs" />
+    <Compile Include="Data\GoExporter.cs" />
     <Compile Include="Data\CsExporter.cs" />
     <Compile Include="Data\ExpandedNodeData.cs" />
     <Compile Include="Data\DataType.cs" />

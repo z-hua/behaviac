@@ -88,6 +88,8 @@
     <Compile Include="DataExporters\Cpp\MethodCppExporter.cs" />
     <Compile Include="DataExporters\Cpp\ParameterCppExporter.cs" />
     <Compile Include="DataExporters\Cpp\PropertyCppExporter.cs" />
+    <Compile Include="DataExporters\Go\DataGoExporter.cs" />
+    <Compile Include="Exporters\ExporterGo.cs" />
     <Compile Include="Exporters\ExporterCs.cs" />
     <Compile Include="NodeExporters\AttachmentExporter.cs" />
     <Compile Include="Exporters\ExporterCpp.cs" />
@@ -163,6 +165,10 @@
     <Compile Include="NodeExporters\Cpp\Actions\WaitFramesCppExporter.cs" />
     <Compile Include="NodeExporters\Cpp\NodeCppExporter.cs" />
     <Compile Include="NodeExporters\Cpp\Actions\WaitCppExporter.cs" />
+    <Compile Include="NodeExporters\Go\Actions\ActionGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Actions\NoopGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\SequenceGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\NodeGoExporter.cs" />
     <Compile Include="NodeExporters\NodeExporter.cs" />
     <Compile Include="Nodes\Actions\Compute.cs" />
     <Compile Include="Nodes\Actions\ConnectorCondition.cs" />
@@ -350,6 +356,7 @@
   <ItemGroup>
     <None Include="Resources\method.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
