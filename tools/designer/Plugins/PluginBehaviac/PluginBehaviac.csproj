@@ -88,7 +88,16 @@
     <Compile Include="DataExporters\Cpp\MethodCppExporter.cs" />
     <Compile Include="DataExporters\Cpp\ParameterCppExporter.cs" />
     <Compile Include="DataExporters\Cpp\PropertyCppExporter.cs" />
+    <Compile Include="DataExporters\Go\ArrayGoExporter.cs" />
     <Compile Include="DataExporters\Go\DataGoExporter.cs" />
+    <Compile Include="DataExporters\Go\EnumGoExporter.cs" />
+    <Compile Include="DataExporters\Go\MethodGoExporter.cs" />
+    <Compile Include="DataExporters\Go\ParameterGoExporter.cs" />
+    <Compile Include="DataExporters\Go\ParInfoGoExporter.cs" />
+    <Compile Include="DataExporters\Go\PropertyGoExporter.cs" />
+    <Compile Include="DataExporters\Go\RightValueGoExporter.cs" />
+    <Compile Include="DataExporters\Go\StructGoExporter.cs" />
+    <Compile Include="DataExporters\Go\VariableGoExporter.cs" />
     <Compile Include="Exporters\ExporterGo.cs" />
     <Compile Include="Exporters\ExporterCs.cs" />
     <Compile Include="NodeExporters\AttachmentExporter.cs" />
@@ -166,8 +175,12 @@
     <Compile Include="NodeExporters\Cpp\NodeCppExporter.cs" />
     <Compile Include="NodeExporters\Cpp\Actions\WaitCppExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\ActionGoExporter.cs" />
-    <Compile Include="NodeExporters\Go\Actions\NoopGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Actions\WaitGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\SelectorStochasticGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\SelectorGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\SequenceStochasticGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SequenceGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Actions\NoopGoExporter.cs" />
     <Compile Include="NodeExporters\Go\NodeGoExporter.cs" />
     <Compile Include="NodeExporters\NodeExporter.cs" />
     <Compile Include="Nodes\Actions\Compute.cs" />
@@ -356,7 +369,10 @@
   <ItemGroup>
     <None Include="Resources\method.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="NodeExporters\Go\Conditions\" />
+    <Folder Include="NodeExporters\Go\Decorators\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

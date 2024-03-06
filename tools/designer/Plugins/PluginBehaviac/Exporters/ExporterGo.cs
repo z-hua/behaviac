@@ -199,12 +199,6 @@ namespace PluginBehaviac.Exporters
             string btClassName = getValidFilename(filename);
             string agentType = behavior.AgentType.Name;
 
-            // create the bt class
-            file.WriteLine("// {0}", ((Node)behavior).CommentText);
-            file.WriteLine("type {0} struct {{", ((Node)behavior).Label);
-            file.WriteLine("}");
-            file.WriteLine();
-
             // create the class definition of its attachments
             ExportAttachmentClass(file, btClassName, (Node)behavior);
 
@@ -213,6 +207,13 @@ namespace PluginBehaviac.Exporters
             {
                 ExportNodeClass(file, btClassName, agentType, behavior, child);
             }
+            file.WriteLine();
+
+            // create the bt class
+            file.WriteLine("// {0}", ((Node)behavior).CommentText);
+            file.WriteLine("type {0} struct {{", ((Node)behavior).Label);
+            file.WriteLine("}");
+            file.WriteLine();
 
             // export the build function
             file.WriteLine("func (_o *{0}) NewTree() *bt.Tree {{", ((Node)behavior).Label);

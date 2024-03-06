@@ -18,7 +18,6 @@ using System.IO;
 using System.Reflection;
 using Behaviac.Design.Nodes;
 using PluginBehaviac.DataExporters;
-using System.Xml.Serialization;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -76,20 +75,37 @@ namespace PluginBehaviac.NodeExporters
         {
             if (ShouldGenerateClass(node))
             {
-                GenerateMethod(node, stream, indent);
+                string className = GetGeneratedClassName(node, btClassName, nodeName);
+
+                //stream.WriteLine("{0}\tclass {1} : behaviac.{2}\r\n{0}\t{{", indent, className, node.ExportClass);
+                stream.WriteLine("type {0} struct {{", className);
+                stream.WriteLine("\tbt.{0}", node.ExportClass);
+
+                GenerateMember(node, stream, indent);
+
+                stream.WriteLine("}");
+                stream.WriteLine();
+
+                stream.WriteLine("func New{0}() *{0} {{", className);
+                stream.WriteLine("\t_o := new({0})", className);
+
+                GenerateConstructor(node, stream, indent, className);
+
+                stream.WriteLine("\t return _o");
+                stream.WriteLine("}");
+                stream.WriteLine();
+
+                GenerateMethod(node, stream, indent, className);
+                stream.WriteLine();
             }
         }
 
         public override void GenerateInstance(Node node, StringWriter stream, string indent, string nodeName, string agentType, string btClassName)
         {
-            string nodeBehavior = GetNodeBehavior(node, indent, nodeName, agentType, btClassName);
+            string nodeBehavior = GetNodeBehavior(node, btClassName, nodeName);
+
             // create a new instance of the node
             stream.WriteLine("{0}\t{1} := bt.NewNode({2}, {3});", indent, nodeName, node.Id, nodeBehavior);
-        }
-
-        protected virtual string GetNodeBehavior(Node node, string indent, string nodeName, string agentType, string btClassName)
-        {
-            return "";
         }
 
         protected string GetGeneratedClassName(Node node, string btClassName, string nodeName)
@@ -100,6 +116,11 @@ namespace PluginBehaviac.NodeExporters
             }
 
             return node.ExportClass;
+        }
+
+        protected virtual string GetNodeBehavior(Node node, string btClassName, string nodeName)
+        {
+            return string.Format("New{0}()", GetGeneratedClassName(node, btClassName, nodeName));
         }
 
         protected virtual bool ShouldGenerateClass(Node node)
@@ -115,7 +136,7 @@ namespace PluginBehaviac.NodeExporters
         {
         }
 
-        protected virtual void GenerateMethod(Node node, StringWriter stream, string indent)
+        protected virtual void GenerateMethod(Node node, StringWriter stream, string indent, string className)
         {
         }
     }

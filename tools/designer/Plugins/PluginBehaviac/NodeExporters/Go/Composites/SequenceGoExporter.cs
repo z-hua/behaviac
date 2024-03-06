@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+﻿/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tencent is pleased to support the open source community by making behaviac available.
 //
 // Copyright (C) 2015-2017 THL A29 Limited, a Tencent company. All rights reserved.
@@ -11,20 +11,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using Behaviac.Design;
 using Behaviac.Design.Nodes;
-using Behaviac.Design.Attributes;
-using PluginBehaviac.Nodes;
 
 namespace PluginBehaviac.NodeExporters
 {
     public class SequenceGoExporter : NodeGoExporter
     {
-        protected override string GetNodeBehavior(Node node, string indent, string nodeName, string agentType, string btClassName)
+        protected override string GetNodeBehavior(Node node, string btClassName, string nodeName)
         {
             return "composite.NewSequence()";
         }

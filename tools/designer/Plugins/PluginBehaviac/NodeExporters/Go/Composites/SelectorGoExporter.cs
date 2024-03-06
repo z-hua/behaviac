@@ -15,11 +15,11 @@ using Behaviac.Design.Nodes;
 
 namespace PluginBehaviac.NodeExporters
 {
-    public class NoopGoExporter : NodeGoExporter
+    public class SelectorGoExporter : NodeGoExporter
     {
         protected override string GetNodeBehavior(Node node, string btClassName, string nodeName)
         {
-            return "performer.NewNoop()";
+            return "composite.NewSelector()";
         }
     }
 }
