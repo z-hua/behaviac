@@ -2609,7 +2609,7 @@ namespace Behaviac.Design
     {
     }
 
-    [TypeHandler(typeof(llong))]
+    // [TypeHandler(typeof(llong))]
     public class LLongTypeHandler
     {
         public static object Create()
@@ -2728,7 +2728,7 @@ namespace Behaviac.Design
     {
     }
 
-    [TypeHandler(typeof(ullong))]
+    // [TypeHandler(typeof(ullong))]
     public class ULLongTypeHandler
     {
         public static object Create()
@@ -3320,7 +3320,7 @@ namespace XMLPluginBehaviac
         BT_RUNNING
     }
 
-    [Behaviac.Design.TypeHandler(typeof(behaviac_EBTStatus))]
+    // [Behaviac.Design.TypeHandler(typeof(behaviac_EBTStatus))]
     public class behaviac_EBTStatusTypeHandler
     {
         public static object Create()
