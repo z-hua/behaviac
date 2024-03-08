@@ -151,20 +151,13 @@ namespace PluginBehaviac.NodeExporters
                                 //stream.WriteLine("{0}Debug.Check(!System.Object.ReferenceEquals({1}, null) || Utils.IsStaticClass(\"{2}\"));", indent, agentName, instanceName);
                             }
 
-                            if (action.ResultFunctor.IsPublic)
-                            {
-                                resultStatus = string.Format("{0}.({1}).{2}(result)", agentName, action.Method.ClassName, action.ResultFunctor.BasicName);
-                            }
-                            else
-                            {
-                                resultStatus = string.Format("AgentMetaVisitor.ExecuteMethod({0}, \"{1}\", new object[] {{ result }})", agentName, action.ResultFunctor.BasicName);
-                            }
+                            resultStatus = string.Format("{0}.({1}).{2}(result)", agentName, action.Method.ClassName, action.ResultFunctor.BasicName);
                         }
                     }
                 }
             }
 
-            stream.WriteLine("\t\treturn {0};", resultStatus);
+            stream.WriteLine("\t\treturn {0}", resultStatus);
             stream.WriteLine("\t}");
             stream.WriteLine("}");
         }
