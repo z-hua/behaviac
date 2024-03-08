@@ -176,11 +176,20 @@
     <Compile Include="NodeExporters\Cpp\Actions\WaitCppExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\ActionGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\WaitGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\AttachmentGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Attachments\AttachActionGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Attachments\EffectorGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Attachments\EventGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Attachments\PreconditionGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SelectorStochasticGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SelectorGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SequenceStochasticGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SequenceGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\NoopGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Conditions\FalseGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Conditions\TrueGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Conditions\AndGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Conditions\OrGoExporter.cs" />
     <Compile Include="NodeExporters\Go\NodeGoExporter.cs" />
     <Compile Include="NodeExporters\NodeExporter.cs" />
     <Compile Include="Nodes\Actions\Compute.cs" />
@@ -370,7 +379,6 @@
     <None Include="Resources\method.png" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="NodeExporters\Go\Conditions\" />
     <Folder Include="NodeExporters\Go\Decorators\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

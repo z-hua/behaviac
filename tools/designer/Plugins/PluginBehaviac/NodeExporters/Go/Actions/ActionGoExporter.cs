@@ -11,9 +11,6 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using Behaviac.Design;
 using Behaviac.Design.Nodes;
@@ -62,7 +59,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            //stream.WriteLine("{0}\t\t\tthis.m_resultOption = {1};", indent, getResultOptionStr(action.ResultOption));
+            stream.WriteLine("\t_o.Callback = _o.callbackFn");
 
             if (action.Method != null && !isNullMethod(action.Method))
             {
@@ -98,7 +95,10 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (_o *{0}) Update(agent bt.Agent, rt *bt.Runtime, node *bt.Node) bt.Status {{", className);
+            stream.WriteLine("func (_o *{0}) callbackFn() func(agent bt.Agent) bt.Status {{", className);
+            stream.WriteLine("\treturn func(agent bt.Agent) bt.Status {");
+
+            indent += "\t";
 
             string resultStatus = getResultOptionStr(action.ResultOption);
 
@@ -111,18 +111,18 @@ namespace PluginBehaviac.NodeExporters
                 {
                     resultStatus = "result";
 
-                    stream.WriteLine("{0}\t\t\t{1} result = {2};", indent, nativeReturnType, method);
+                    stream.WriteLine("\t\tresult := {0}", method);
                     MethodGoExporter.PostGenerateCode(action.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "method");
                 }
                 else
                 {
                     if (("void" == nativeReturnType) || (EBTStatus.BT_INVALID != action.ResultOption) || action.ResultFunctor == null)
                     {
-                        stream.WriteLine("\t{0};", method);
+                        stream.WriteLine("\t\t{0}", method);
                     }
                     else
                     {
-                        stream.WriteLine("{0}\t\t\t{1} result = {2};", indent, nativeReturnType, method);
+                        stream.WriteLine("\t\tresult := {0}", method);
                     }
 
                     MethodGoExporter.PostGenerateCode(action.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "method");
@@ -139,13 +139,13 @@ namespace PluginBehaviac.NodeExporters
                         }
                         else
                         {
-                            string agentName = "pAgent";
+                            string agentName = "agent";
 
                             if (action.ResultFunctor.Owner != VariableDef.kSelf &&
                                 (!action.ResultFunctor.IsPublic || !action.ResultFunctor.IsStatic))
                             {
                                 string instanceName = action.ResultFunctor.Owner.Replace("::", ".");
-                                agentName = "pAgent_functor";
+                                agentName = "agent_functor";
 
                                 stream.WriteLine("{0}behaviac.Agent {1} = behaviac.Utils.GetParentAgent(pAgent, \"{2}\");", indent, agentName, instanceName);
                                 //stream.WriteLine("{0}Debug.Check(!System.Object.ReferenceEquals({1}, null) || Utils.IsStaticClass(\"{2}\"));", indent, agentName, instanceName);
@@ -153,29 +153,19 @@ namespace PluginBehaviac.NodeExporters
 
                             if (action.ResultFunctor.IsPublic)
                             {
-                                //string className = action.ResultFunctor.ClassName.Replace("::", ".");
-
-                                if (action.ResultFunctor.IsStatic)
-                                {
-                                    resultStatus = string.Format("{0}.{1}(result)", className, action.ResultFunctor.BasicName);
-                                }
-                                else
-                                {
-                                    resultStatus = string.Format("(({0}){1}).{2}(result)", className, agentName, action.ResultFunctor.BasicName);
-                                }
+                                resultStatus = string.Format("{0}.({1}).{2}(result)", agentName, action.Method.ClassName, action.ResultFunctor.BasicName);
                             }
                             else
                             {
                                 resultStatus = string.Format("AgentMetaVisitor.ExecuteMethod({0}, \"{1}\", new object[] {{ result }})", agentName, action.ResultFunctor.BasicName);
                             }
                         }
-
-                        resultStatus = string.Format("(EBTStatus){0}", resultStatus);
                     }
                 }
             }
 
-            stream.WriteLine("\treturn {0};", resultStatus);
+            stream.WriteLine("\t\treturn {0};", resultStatus);
+            stream.WriteLine("\t}");
             stream.WriteLine("}");
         }
     }

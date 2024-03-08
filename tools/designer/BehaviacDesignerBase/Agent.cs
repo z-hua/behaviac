@@ -3320,7 +3320,7 @@ namespace XMLPluginBehaviac
         BT_RUNNING
     }
 
-    // [Behaviac.Design.TypeHandler(typeof(behaviac_EBTStatus))]
+    [Behaviac.Design.TypeHandler(typeof(behaviac_EBTStatus))]
     public class behaviac_EBTStatusTypeHandler
     {
         public static object Create()

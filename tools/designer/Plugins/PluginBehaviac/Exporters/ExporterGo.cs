@@ -60,7 +60,7 @@ namespace PluginBehaviac.Exporters
         public override void PreviewAgentFile(AgentType agent)
         {
             string behaviacTypesDir = GetBehaviacTypesDir();
-            string tmpFilename = Path.Combine(behaviacTypesDir, agent.BasicName + ".cs");
+            string tmpFilename = Path.Combine(behaviacTypesDir, agent.BasicName + ".go");
 
             ExportAgentGoFile(agent, tmpFilename, true);
 
@@ -70,7 +70,7 @@ namespace PluginBehaviac.Exporters
         public override void PreviewEnumFile(EnumType enumType)
         {
             string behaviacTypesDir = GetBehaviacTypesDir();
-            string tmpFilename = Path.Combine(behaviacTypesDir, enumType.Name + ".cs");
+            string tmpFilename = Path.Combine(behaviacTypesDir, enumType.Name + ".go");
 
             ExportEnumFile(null, enumType, tmpFilename);
 
@@ -80,7 +80,7 @@ namespace PluginBehaviac.Exporters
         public override void PreviewStructFile(StructType structType)
         {
             string behaviacTypesDir = GetBehaviacTypesDir();
-            string tmpFilename = Path.Combine(behaviacTypesDir, structType.Name + ".cs");
+            string tmpFilename = Path.Combine(behaviacTypesDir, structType.Name + ".go");
 
             ExportStructFile(null, null, structType, tmpFilename);
 
@@ -194,7 +194,7 @@ namespace PluginBehaviac.Exporters
 
             file.WriteLine();
             // write comments
-            file.WriteLine("// Source file: {0}\r\n", filename);
+            file.WriteLine("// Source file: {0}", filename);
 
             string btClassName = getValidFilename(filename);
             string agentType = behavior.AgentType.Name;
@@ -210,24 +210,24 @@ namespace PluginBehaviac.Exporters
             file.WriteLine();
 
             // create the bt class
-            file.WriteLine("// {0}", ((Node)behavior).CommentText);
+            file.WriteLine("// {0} {1}", ((Node)behavior).Label, ((Node)behavior).CommentText);
             file.WriteLine("type {0} struct {{", ((Node)behavior).Label);
             file.WriteLine("}");
             file.WriteLine();
 
             // export the build function
             file.WriteLine("func (_o *{0}) NewTree() *bt.Tree {{", ((Node)behavior).Label);
-            file.WriteLine("\ttree := bt.NewTree(\"{0}\")", ((Node)behavior).Label);
+            file.WriteLine("\t_t := bt.NewTree(\"{0}\")", ((Node)behavior).Label);
 
             if (((Behavior)behavior).DescriptorRefs.Count > 0)
             {
                 file.WriteLine("\t\t\tbt.SetDescriptors(\"{0}\");", DesignerPropertyUtility.RetrieveExportValue(((Behavior)behavior).DescriptorRefs));
             }
 
-            ExportPars(file, agentType, "tree", (Node)behavior, "\t\t");
+            ExportPars(file, agentType, "_t", (Node)behavior, "\t\t");
 
             // export its attachments
-            ExportAttachment(file, btClassName, agentType, "tree", (Node)behavior, "\t\t\t");
+            ExportAttachment(file, btClassName, agentType, "_t", (Node)behavior, "\t\t\t");
 
             file.WriteLine("\t// children");
 
@@ -255,11 +255,11 @@ namespace PluginBehaviac.Exporters
             {
                 foreach (Node child in ((Node)behavior).GetChildNodes())
                 {
-                    ExportNode(file, btClassName, agentType, "tree", child, 1);
+                    ExportNode(file, btClassName, agentType, "_t", child, 1);
                 }
             }
 
-            file.WriteLine("\treturn tree");
+            file.WriteLine("\treturn _t");
 
             // close the build function
             file.WriteLine("}");
@@ -290,7 +290,7 @@ namespace PluginBehaviac.Exporters
                 for (int i = 0; i < pars.Count; ++i)
                 {
                     string name = pars[i].BasicName;
-                    string type = DataCsExporter.GetGeneratedParType(pars[i].Type);
+                    string type = DataGoExporter.GetGeneratedParType(pars[i].Type);
                     string value = pars[i].DefaultValue.Replace("\"", "\\\"");
 
                     file.WriteLine("{0}\t{1}.AddLocal(\"{2}\", \"{3}\", \"{4}\", \"{5}\");", indent, nodeName, agentType, type, name, value);
@@ -309,7 +309,7 @@ namespace PluginBehaviac.Exporters
 
                 string nodeName = string.Format("attach{0}", attach.Id);
 
-                AttachmentCsExporter attachmentExporter = AttachmentCsExporter.CreateInstance(attach);
+                AttachmentGoExporter attachmentExporter = AttachmentGoExporter.CreateInstance(attach);
                 attachmentExporter.GenerateClass(attach, file, "", nodeName, btClassName);
             }
         }
@@ -332,7 +332,7 @@ namespace PluginBehaviac.Exporters
                     string nodeName = string.Format("attach{0}", attach.Id);
 
                     // export its instance and the properties
-                    AttachmentCsExporter attachmentExporter = AttachmentCsExporter.CreateInstance(attach);
+                    AttachmentGoExporter attachmentExporter = AttachmentGoExporter.CreateInstance(attach);
                     attachmentExporter.GenerateInstance(attach, file, indent, nodeName, agentType, btClassName);
 
                     string isPrecondition = attach.IsPrecondition && !attach.IsTransition ? "true" : "false";
@@ -477,7 +477,7 @@ namespace PluginBehaviac.Exporters
                     {
                         string behaviacAgentDir = GetBehaviacTypesDir();
                         string newFilename = Path.GetFileName(filename);
-                        newFilename = Path.ChangeExtension(newFilename, ".new.cs");
+                        newFilename = Path.ChangeExtension(newFilename, ".new.go");
                         newFilename = Path.Combine(behaviacAgentDir, newFilename);
 
                         ExportAgentGoFile(agent, newFilename, false);
@@ -766,6 +766,11 @@ namespace PluginBehaviac.Exporters
                     {
                         string enumLocation = Workspace.Current.MakeAbsolutePath(enumType.ExportLocation);
 
+                        if (!enumLocation.StartsWith(Workspace.Current.DefaultExportFolder))
+                        {
+                            throw new Exception(string.Format("The export location of {0} must under {1}", enumLocation, Workspace.Current.DefaultExportFolder));
+                        }
+
                         if (!Directory.Exists(enumLocation))
                         {
                             Directory.CreateDirectory(enumLocation);
@@ -849,7 +854,7 @@ namespace PluginBehaviac.Exporters
                         Directory.CreateDirectory(structLocation);
                     }
 
-                    structFilename = Path.Combine(structLocation, structType.Name + ".cs");
+                    structFilename = Path.Combine(structLocation, structType.Name + ".go");
                 }
 
                 UpdateFile(structfile, structFilename);
@@ -858,7 +863,7 @@ namespace PluginBehaviac.Exporters
 
         private bool IsStructType(MethodDef.Param param)
         {
-            string paramType = DataCsExporter.GetGeneratedNativeType(param.NativeType);
+            string paramType = DataGoExporter.GetGeneratedNativeType(param.NativeType);
             bool isStruct = Plugin.IsCustomClassType(param.Type);
 
             if (isStruct)
@@ -925,7 +930,7 @@ namespace PluginBehaviac.Exporters
                 {
                     if (!prop.IsReadonly)
                     {
-                        string propType = DataCsExporter.GetGeneratedNativeType(prop.NativeType);
+                        string propType = DataGoExporter.GetGeneratedNativeType(prop.NativeType);
 
                         file.WriteLine("\t\t\t\t_{0} = (CInstanceMember<{1}>)AgentMeta.ParseProperty<{1}>(paramStrs[{2}]);", prop.BasicName, propType, validPropCount);
 
@@ -957,7 +962,7 @@ namespace PluginBehaviac.Exporters
                 {
                     if (!prop.IsReadonly)
                     {
-                        string propType = DataCsExporter.GetGeneratedNativeType(prop.NativeType);
+                        string propType = DataGoExporter.GetGeneratedNativeType(prop.NativeType);
 
                         if (Plugin.IsRefType(prop.Type))
                         {
@@ -1013,7 +1018,7 @@ namespace PluginBehaviac.Exporters
                                 allMethods[methodFullname] = true;
                             }
 
-                            string methodReturnType = DataCsExporter.GetGeneratedNativeType(method.NativeReturnType);
+                            string methodReturnType = DataGoExporter.GetGeneratedNativeType(method.NativeReturnType);
                             string baseClass = (methodReturnType == "void") ? "CAgentMethodVoidBase" : string.Format("CAgentMethodBase<{0}>", methodReturnType);
 
                             // class
@@ -1028,7 +1033,7 @@ namespace PluginBehaviac.Exporters
                                 }
                                 else
                                 {
-                                    string paramType = DataCsExporter.GetGeneratedNativeType(param.NativeType);
+                                    string paramType = DataGoExporter.GetGeneratedNativeType(param.NativeType);
                                     file.WriteLine("\t\t\tCInstanceMember<{0}> _{1};", paramType, param.Name);
                                 }
                             }
@@ -1067,7 +1072,7 @@ namespace PluginBehaviac.Exporters
                             for (int i = 0; i < method.Params.Count; ++i)
                             {
                                 MethodDef.Param param = method.Params[i];
-                                string paramType = DataCsExporter.GetGeneratedNativeType(param.NativeType);
+                                string paramType = DataGoExporter.GetGeneratedNativeType(param.NativeType);
 
                                 if (IsStructType(param))
                                 {
@@ -1124,7 +1129,7 @@ namespace PluginBehaviac.Exporters
                                     paramValues += ", ";
                                 }
 
-                                string paramType = DataCsExporter.GetGeneratedNativeType(param.NativeType);
+                                string paramType = DataGoExporter.GetGeneratedNativeType(param.NativeType);
                                 string paramName = string.Format("((CInstanceMember<{0}>)_{1}).GetValue(self)", paramType, param.Name);
 
                                 if (Plugin.IsRefType(param.Type))
@@ -1194,7 +1199,7 @@ namespace PluginBehaviac.Exporters
                                     }
                                     else
                                     {
-                                        string paramType = DataCsExporter.GetGeneratedNativeType(param.NativeType);
+                                        string paramType = DataGoExporter.GetGeneratedNativeType(param.NativeType);
                                         file.WriteLine("\t\t\t\t_{0}.SetValue(self, ({1})paramArray[{2}]);", param.Name, paramType, i);
                                     }
                                 }
@@ -1205,7 +1210,7 @@ namespace PluginBehaviac.Exporters
                             if (method.Params.Count == 1 && methodReturnType == "behaviac.EBTStatus")
                             {
                                 // GetIValue()
-                                string paramType = DataCsExporter.GetGeneratedNativeType(method.Params[0].NativeType);
+                                string paramType = DataGoExporter.GetGeneratedNativeType(method.Params[0].NativeType);
 
                                 file.WriteLine();
                                 file.WriteLine("\t\t\tpublic override IValue GetIValue(Agent self, IInstanceMember firstParam)");
@@ -1241,7 +1246,7 @@ namespace PluginBehaviac.Exporters
                                     }
                                     else
                                     {
-                                        string paramNativeType = DataCsExporter.GetGeneratedNativeType(param.NativeType);
+                                        string paramNativeType = DataGoExporter.GetGeneratedNativeType(param.NativeType);
                                         file.WriteLine("\t\t\t\tfirstParam.SetValue(self, ({0})paramArray[0]);", paramNativeType);
                                     }
                                 }
@@ -1253,273 +1258,6 @@ namespace PluginBehaviac.Exporters
                             file.WriteLine("\t\t}"); // class
                             file.WriteLine();
                         }
-                    }
-                }
-            }
-        }
-
-        private void ExportMeta(StringWriter file)
-        {
-            file.WriteLine("\t\t\tAgentMeta.TotalSignature = {0};", CRC32.CalcCRC(Plugin.Signature));
-            file.WriteLine();
-            file.WriteLine("\t\t\tAgentMeta meta;");
-
-            foreach (AgentType agent in Plugin.AgentTypes)
-            {
-                string agentTypeName = agent.Name.Replace("::", ".");
-                string signature = agent.GetSignature(true);
-
-                file.WriteLine("\n\t\t\t// {0}", agentTypeName);
-                file.WriteLine("\t\t\tmeta = new AgentMeta({0});", CRC32.CalcCRC(signature));
-                file.WriteLine("\t\t\tAgentMeta._AgentMetas_[{0}] = meta;", CRC32.CalcCRC(agentTypeName));
-
-                IList<PropertyDef> properties = agent.GetProperties(true);
-
-                foreach (PropertyDef prop in properties)
-                {
-                    if (!prop.IsPar)
-                    {
-                        string bindingProperty = "";
-                        string registerName = "RegisterMemberProperty";
-                        string propType = DataCsExporter.GetGeneratedNativeType(prop.NativeItemType);
-
-                        string propItemName = prop.BasicName;
-
-                        if (prop.IsArrayElement)
-                        {
-                            propItemName = propItemName.Replace("[]", "[index]");
-                        }
-
-                        string instanceName = string.Format("(({0})self)", agentTypeName);
-
-                        if (agent.IsStatic || prop.IsStatic)
-                        {
-                            instanceName = agentTypeName;
-                        }
-
-                        string setValue = "";
-                        string getValue = "";
-
-                        if (prop.IsPublic)
-                        {
-                            setValue = string.Format("{0}.{1} = value;", instanceName, propItemName);
-                            getValue = string.Format("{0}.{1}", instanceName, propItemName);
-                        }
-                        else
-                        {
-                            if (prop.IsArrayElement)
-                            {
-                                setValue = string.Format("{0}._get_{1}()[index] = value;", instanceName, prop.BasicName.Replace("[]", ""));
-                                getValue = string.Format("{0}._get_{1}()[index]", instanceName, prop.BasicName.Replace("[]", ""));
-                            }
-                            else
-                            {
-                                setValue = string.Format("{0}._set_{1}(value);", instanceName, propItemName);
-                                getValue = string.Format("{0}._get_{1}()", instanceName, propItemName);
-                            }
-                        }
-
-                        if (prop.IsReadonly)
-                        {
-                            setValue = "";
-                        }
-
-                        bool isMemberProp = prop.IsMember || agent.IsCustomized;
-
-                        if (agent.IsStatic || isMemberProp && prop.IsStatic)
-                        {
-                            if (isMemberProp)
-                            {
-                                if (prop.IsArrayElement)
-                                {
-                                    bindingProperty = string.Format("new CStaticMemberArrayItemProperty<{0}>(\"{1}\", delegate({0} value, int index) {{ {2} }}, delegate(int index) {{ return {3}; }})",
-                                                                    propType, prop.BasicName, setValue, getValue);
-                                }
-                                else
-                                {
-                                    bindingProperty = string.Format("new CStaticMemberProperty<{0}>(\"{1}\", delegate({0} value) {{ {2} }}, delegate() {{ return {3}; }})",
-                                                                    propType, prop.BasicName, setValue, getValue);
-                                }
-                            }
-                            else
-                            {
-                                Debug.Check(false);
-                            }
-                        }
-                        else
-                        {
-                            if (isMemberProp)
-                            {
-                                if (!prop.IsStatic)
-                                {
-                                    if (prop.IsArrayElement)
-                                    {
-                                        bindingProperty = string.Format("new CMemberArrayItemProperty<{0}>(\"{1}\", delegate(Agent self, {0} value, int index) {{ {2} }}, delegate(Agent self, int index) {{ return {3}; }})",
-                                                                        propType, prop.BasicName, setValue, getValue);
-                                    }
-                                    else
-                                    {
-                                        bindingProperty = string.Format("new CMemberProperty<{0}>(\"{1}\", delegate(Agent self, {0} value) {{ {2} }}, delegate(Agent self) {{ return {3}; }})",
-                                                                        propType, prop.BasicName, setValue, getValue);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                registerName = prop.IsStatic ? "RegisterStaticCustomizedProperty" : "RegisterCustomizedProperty";
-
-                                if (prop.IsArrayElement)
-                                {
-                                    string propName = prop.BasicName.Replace("[]", "");
-                                    bindingProperty = string.Format("new CCustomizedArrayItemProperty<{0}>({1}, \"{2}\")",
-                                                                    propType, CRC32.CalcCRC(propName), propName);
-                                }
-                                else
-                                {
-                                    bindingProperty = string.Format("new CCustomizedProperty<{0}>({1}, \"{2}\", \"{3}\")",
-                                                                    propType, CRC32.CalcCRC(prop.BasicName), prop.BasicName, prop.DefaultValue);
-                                }
-                            }
-                        }
-
-                        file.WriteLine("\t\t\tmeta.{0}({1}, {2});", registerName, CRC32.CalcCRC(prop.BasicName), bindingProperty);
-                    }
-                }
-
-                IList<MethodDef> methods = agent.GetMethods(true);
-
-                foreach (MethodDef method in methods)
-                {
-                    bool hasRefParam = false;
-
-                    foreach (MethodDef.Param param in method.Params)
-                    {
-                        if (param.IsRef || param.IsOut || Plugin.IsRefType(param.Type) || IsStructType(param))
-                        {
-                            hasRefParam = true;
-                            break;
-                        }
-                    }
-
-                    string agentMethod = "";
-                    string paramTypes = "";
-                    string paramTypeValues = "";
-                    string paramValues = "";
-
-                    if (method.IsNamedEvent || !hasRefParam)
-                    {
-                        foreach (MethodDef.Param param in method.Params)
-                        {
-                            if (!string.IsNullOrEmpty(paramTypes))
-                            {
-                                paramTypes += ", ";
-                            }
-
-                            if (!string.IsNullOrEmpty(paramValues))
-                            {
-                                paramValues += ", ";
-                            }
-
-                            string paramType = DataCsExporter.GetGeneratedNativeType(param.NativeType);
-                            paramTypes += paramType;
-                            paramTypeValues += ", " + paramType + " " + param.Name;
-                            paramValues += param.Name;
-                        }
-                    }
-
-                    string methodReturnType = DataCsExporter.GetGeneratedNativeType(method.NativeReturnType);
-
-                    if (method.IsNamedEvent)
-                    {
-                        if (!string.IsNullOrEmpty(paramTypes))
-                        {
-                            paramTypes = string.Format("<{0}>", paramTypes);
-                        }
-
-                        agentMethod = string.Format("new CAgentMethodVoid{0}(delegate(Agent self{1}) {{ }}) /* {2} */", paramTypes, paramTypeValues, method.BasicName);
-
-                        file.WriteLine("\t\t\tmeta.RegisterMethod({0}, {1});", CRC32.CalcCRC(method.BasicName), agentMethod);
-                    }
-                    else
-                    {
-                        if (hasRefParam)
-                        {
-                            string methodFullname = method.Name.Replace("::", "_");
-                            agentMethod = string.Format("new CMethod_{0}()", methodFullname);
-                        }
-                        else
-                        {
-                            if (method.IsStatic)
-                            {
-                                if (paramTypeValues.StartsWith(", "))
-                                {
-                                    paramTypeValues = paramTypeValues.Substring(2);
-                                }
-
-                                if (methodReturnType == "void")
-                                {
-                                    if (!string.IsNullOrEmpty(paramTypes))
-                                    {
-                                        paramTypes = string.Format("<{0}>", paramTypes);
-                                    }
-
-                                    agentMethod = string.Format("new CAgentStaticMethodVoid{0}(delegate({1}) {{ {2}.{3}({4}); }})",
-                                                                paramTypes, paramTypeValues, agentTypeName, method.BasicName, paramValues);
-                                }
-                                else
-                                {
-                                    if (!string.IsNullOrEmpty(paramTypes))
-                                    {
-                                        paramTypes = ", " + paramTypes;
-                                    }
-
-                                    agentMethod = string.Format("new CAgentStaticMethod<{0}{1}>(delegate({2}) {{ return {3}.{4}({5}); }})",
-                                                                methodReturnType, paramTypes, paramTypeValues, agentTypeName, method.BasicName, paramValues);
-                                }
-                            }
-                            else
-                            {
-                                string methodStr = "";
-
-                                if (method.IsPublic)
-                                {
-                                    methodStr = string.Format("(({0})self).{1}({2})", agentTypeName, method.BasicName, paramValues);
-                                }
-                                else
-                                {
-                                    paramValues = string.IsNullOrEmpty(paramValues) ? "null" : string.Format("new object[]{{ {0} }}", paramValues);
-                                    methodStr = string.Format("AgentMetaVisitor.ExecuteMethod(self, \"{0}\", {1})", method.BasicName, paramValues);
-                                }
-
-                                if (methodReturnType == "void")
-                                {
-                                    if (!string.IsNullOrEmpty(paramTypes))
-                                    {
-                                        paramTypes = string.Format("<{0}>", paramTypes);
-                                    }
-
-                                    agentMethod = string.Format("new CAgentMethodVoid{0}(delegate(Agent self{1}) {{ {2}; }})",
-                                                                paramTypes, paramTypeValues, methodStr);
-                                }
-                                else
-                                {
-                                    if (!string.IsNullOrEmpty(paramTypes))
-                                    {
-                                        paramTypes = ", " + paramTypes;
-                                    }
-
-                                    if (!method.IsPublic)
-                                    {
-                                        methodStr = string.Format("({0}){1}", methodReturnType, methodStr);
-                                    }
-
-                                    agentMethod = string.Format("new CAgentMethod<{0}{1}>(delegate(Agent self{2}) {{ return {3}; }})",
-                                                                methodReturnType, paramTypes, paramTypeValues, methodStr);
-                                }
-                            }
-                        }
-
-                        file.WriteLine("\t\t\tmeta.RegisterMethod({0}, {1});", CRC32.CalcCRC(method.BasicName), agentMethod);
                     }
                 }
             }
