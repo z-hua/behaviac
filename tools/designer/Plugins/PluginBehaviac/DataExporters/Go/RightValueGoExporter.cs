@@ -48,7 +48,7 @@ namespace PluginBehaviac.DataExporters
 
         public static string GenerateCode(DefaultObject defaultObj, RightValueDef rightValue, StringWriter stream, string indent, string typename, string var, string caller)
         {
-            string retStr = string.Empty;
+            string retStr;
 
             if (rightValue.IsMethod)
             {

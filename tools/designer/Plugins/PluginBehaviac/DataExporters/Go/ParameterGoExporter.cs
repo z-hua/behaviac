@@ -12,8 +12,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using Behaviac.Design;
 using Behaviac.Design.Attributes;
@@ -24,16 +22,12 @@ namespace PluginBehaviac.DataExporters
     {
         public static string GenerateCode(DefaultObject defaultObj, MethodDef.Param param, StringWriter stream, string indent, string typename, string var, string caller)
         {
-            Behaviac.Design.ParInfo par = param.Value as Behaviac.Design.ParInfo;
-
-            if (par != null)
+            if (param.Value is ParInfo par)
             {
                 return ParInfoGoExporter.GenerateCode(par, param.IsRef, stream, indent, typename, var, caller);
             }
 
-            Behaviac.Design.VariableDef v = param.Value as Behaviac.Design.VariableDef;
-
-            if (v != null)
+            if (param.Value is VariableDef v)
             {
                 return VariableGoExporter.GenerateCode(defaultObj, v, param.IsRef, stream, indent, typename, var, caller);
             }
@@ -41,19 +35,15 @@ namespace PluginBehaviac.DataExporters
             return DataGoExporter.GenerateCode(param.Value, defaultObj, stream, indent, typename, var, caller);
         }
 
-        public static void PostGenerateCode(Behaviac.Design.MethodDef.Param param, StringWriter stream, string indent, string typename, string var, string caller, object parent, string setValue)
+        public static void PostGenerateCode(MethodDef.Param param, StringWriter stream, string indent, string typename, string var, string caller, object parent, string setValue)
         {
-            Behaviac.Design.ParInfo par = param.Value as Behaviac.Design.ParInfo;
-
-            if (par != null)
+            if (param.Value is ParInfo par)
             {
                 ParInfoGoExporter.PostGenerateCode(par, null, stream, indent, typename, var, caller);
                 return;
             }
 
-            Behaviac.Design.VariableDef v = param.Value as Behaviac.Design.VariableDef;
-
-            if (v != null)
+            if (param.Value is VariableDef v)
             {
                 VariableGoExporter.PostGenerateCode(v, stream, indent, typename, var, caller, parent, param.Name, setValue);
                 return;

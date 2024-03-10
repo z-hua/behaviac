@@ -12,12 +12,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Reflection;
 using Behaviac.Design.Nodes;
-using PluginBehaviac.DataExporters;
+using Behaviac.Design;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -79,7 +77,6 @@ namespace PluginBehaviac.NodeExporters
 
                 //stream.WriteLine("{0}\tclass {1} : behaviac.{2}\r\n{0}\t{{", indent, className, node.ExportClass);
                 stream.WriteLine("type {0} struct {{", className);
-                stream.WriteLine("\tbt.{0}", node.ExportClass);
 
                 GenerateMember(node, stream, indent);
 
@@ -87,11 +84,11 @@ namespace PluginBehaviac.NodeExporters
                 stream.WriteLine();
 
                 stream.WriteLine("func New{0}() *{0} {{", className);
-                stream.WriteLine("\t_o := new({0})", className);
+                stream.WriteLine("\tb := new({0})", className);
 
                 GenerateConstructor(node, stream, indent, className);
 
-                stream.WriteLine("\t return _o");
+                stream.WriteLine("\treturn b");
                 stream.WriteLine("}");
                 stream.WriteLine();
 
@@ -105,14 +102,14 @@ namespace PluginBehaviac.NodeExporters
             string nodeBehavior = GetNodeBehavior(node, btClassName, nodeName);
 
             // create a new instance of the node
-            stream.WriteLine("{0}\t{1} := bt.NewNode({2}, {3});", indent, nodeName, node.Id, nodeBehavior);
+            stream.WriteLine("{0}\t{1} := bt.NewNode({2}, {3})", indent, nodeName, node.Id, nodeBehavior);
         }
 
         protected string GetGeneratedClassName(Node node, string btClassName, string nodeName)
         {
             if (ShouldGenerateClass(node))
             {
-                return string.Format("{0}_{1}_{2}", node.ExportClass, btClassName, nodeName);
+                return Utilities.ToPascalCase(string.Format("{0}_{1}_{2}", node.ExportClass, btClassName, nodeName));
             }
 
             return node.ExportClass;

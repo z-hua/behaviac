@@ -175,6 +175,8 @@
     <Compile Include="NodeExporters\Cpp\NodeCppExporter.cs" />
     <Compile Include="NodeExporters\Cpp\Actions\WaitCppExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\ActionGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Actions\EndGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Actions\WaitFramesGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\WaitGoExporter.cs" />
     <Compile Include="NodeExporters\Go\AttachmentGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Attachments\AttachActionGoExporter.cs" />
@@ -186,6 +188,7 @@
     <Compile Include="NodeExporters\Go\Composites\SequenceStochasticGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SequenceGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\NoopGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Conditions\ConditionGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Conditions\FalseGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Conditions\TrueGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Conditions\AndGoExporter.cs" />

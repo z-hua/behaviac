@@ -24,20 +24,6 @@ namespace PluginBehaviac.DataExporters
         {
             Debug.Check(!string.IsNullOrEmpty(var));
 
-            string paramsName = getParamsName(var, "");
-
-            if (!method.IsPublic)
-            {
-                if (method.Params.Count == 0)
-                {
-                    stream.WriteLine("{0}\t\t\t{1} = null;", indent, paramsName);
-                }
-                else
-                {
-                    stream.WriteLine("{0}\t\t\t{1} = new object[{2}];", indent, paramsName, method.Params.Count);
-                }
-            }
-
             for (int i = 0; i < method.Params.Count; ++i)
             {
                 // const value
@@ -48,7 +34,6 @@ namespace PluginBehaviac.DataExporters
                     if (obj != null)
                     {
                         string param = getParamName(var, "", i);
-                        string paramName = string.Format("{0}[{1}]", paramsName, i);
 
                         Type type = obj.GetType();
 
@@ -60,110 +45,62 @@ namespace PluginBehaviac.DataExporters
                             string itemType = typename.Substring(startIndex + 1, endIndex - startIndex - 1);
 
                             ArrayGoExporter.GenerateCode(obj, defaultObj, stream, indent + "\t\t\t", itemType, param);
-
-                            if (!method.IsPublic)
-                            {
-                                stream.WriteLine("{0}\t\t\t{1} = {2};", indent, paramName, param);
-                            }
                         }
                         else if (Plugin.IsCustomClassType(type))
                         {
                             if (DesignerStruct.IsPureConstDatum(obj, method, method.Params[i].Name))
                             {
-                                if (Plugin.IsRefType(type))
-                                {
-                                    stream.WriteLine("{0}\t\t\t{1} = null;", indent, param);
-                                }
-
                                 string paramType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
                                 StructGoExporter.GenerateCode(obj, defaultObj, stream, indent + "\t\t\t", param, paramType, null, "");
-
-                                if (!method.IsPublic)
-                                {
-                                    stream.WriteLine("{0}\t\t\t{1} = {2};", indent, paramName, param);
-                                }
                             }
                         }
                         else
                         {
                             string retStr = DataGoExporter.GenerateCode(obj, defaultObj, stream, string.Empty, method.Params[i].NativeType, string.Empty, string.Empty);
 
-                            if (!method.IsPublic)
-                            {
-                                param = paramName;
-                            }
-
-                            stream.WriteLine("\t_o.{0} = {1}", param, retStr);
+                            stream.WriteLine("\tb.{0} = {1}", param, retStr);
                         }
                     }
                 }
             }
         }
 
-        public static void GenerateClassMember(Behaviac.Design.MethodDef method, StringWriter stream, string indent, string var)
+        public static void GenerateClassMember(MethodDef method, StringWriter stream, string indent, string var)
         {
             Debug.Check(!string.IsNullOrEmpty(var));
-
-            if (!method.IsPublic)
-            {
-                string paramsName = getParamsName(var, "");
-                stream.WriteLine("{0}\t\tobject[] {1};", indent, paramsName);
-            }
 
             for (int i = 0; i < method.Params.Count; ++i)
             {
                 // const value
                 if (!method.Params[i].IsProperty && !method.Params[i].IsLocalVar && method.Params[i].Value != null)
                 {
-                    Type type = method.Params[i].Value.GetType();
-
-                    if (method.IsPublic || Plugin.IsArrayType(type) || Plugin.IsCustomClassType(type))
-                    {
-                        string param = getParamName(var, "", i);
-                        string nativeType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
-                        stream.WriteLine("\t{0} {1};", param, nativeType);
-                    }
+                    string param = getParamName(var, "", i);
+                    string nativeType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
+                    stream.WriteLine("\t{0} {1}", param, nativeType);
                 }
             }
         }
 
-        public static string GenerateCode(DefaultObject defaultObj, Behaviac.Design.MethodDef method, StringWriter stream, string indent, string typename, string var, string caller)
+        public static string GenerateCode(DefaultObject defaultObj, MethodDef method, StringWriter stream, string indent, string typename, string var, string caller)
         {
             Debug.Check(!string.IsNullOrEmpty(var) || !string.IsNullOrEmpty(caller));
 
             string allParams = string.Empty;
-            string paramsName = getParamsName(var, caller);
 
             for (int i = 0; i < method.Params.Count; ++i)
             {
                 string nativeType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
-                string param = string.Empty;
-
-                if (method.IsPublic)
-                {
-                    param = "_o."+getParamName(var, caller, i);
-                }
-                else
-                {
-                    param = string.Format("{0}[{1}]", paramsName, i);
-                }
+                string param = "b." + getParamName(var, caller, i);
 
                 if (method.Params[i].IsProperty || method.Params[i].IsLocalVar) // property
                 {
                     if ((method.Params[i].Property != null && method.Params[i].Property.IsCustomized) || method.Params[i].IsLocalVar)
                     {
-                        ParameterGoExporter.GenerateCode(defaultObj, method.Params[i], stream, indent, method.IsPublic ? nativeType : "", param, caller);
+                        ParameterGoExporter.GenerateCode(defaultObj, method.Params[i], stream, indent, nativeType, param, caller);
                     }
                     else
                     {
-                        if (method.IsPublic)
-                        {
-                            param = ParameterGoExporter.GenerateCode(defaultObj, method.Params[i], stream, indent, nativeType, "", param);
-                        }
-                        else
-                        {
-                            ParameterGoExporter.GenerateCode(defaultObj, method.Params[i], stream, indent, "", param, caller);
-                        }
+                        param = ParameterGoExporter.GenerateCode(defaultObj, method.Params[i], stream, indent, nativeType, "", param);
                     }
 
                     VariableDef v = method.Params[i].Value as VariableDef;
@@ -174,17 +111,20 @@ namespace PluginBehaviac.DataExporters
 
                         if (prop != null && prop.IsArrayElement)
                         {
-                            // ParameterGoExporter.GenerateCode(defaultObj, v.ArrayIndexElement, stream, indent, "int", param + "_index", param + caller);
-
                             if (string.IsNullOrEmpty(param))
                             {
                                 string property = PropertyGoExporter.GetProperty(defaultObj, prop, v.ArrayIndexElement, stream, indent, param, caller);
                                 param = string.Format("({0})[{1}]", property, param);
                             }
+                            /*else if (v.ArrayIndexElement.Value is VariableDef valueVar)
+                            {
+                                string index = VariableGoExporter.GenerateCode(defaultObj, valueVar, false, stream, indent, "", "", caller);
+                                param = string.Format("{0}[{1}]", param, index);
+                            }
                             else
                             {
                                 param = string.Format("{0}[{1}]", param, v.ArrayIndexElement.Value);
-                            }
+                            }*/
                         }
                     }
                 }
@@ -202,11 +142,6 @@ namespace PluginBehaviac.DataExporters
                             string paramType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
 
                             StructGoExporter.GenerateCode(obj, defaultObj, stream, indent, paramName, paramType, method, method.Params[i].Name);
-
-                            if (!method.IsPublic)
-                            {
-                                stream.WriteLine("{0}{1} = {2};", indent, param, paramName);
-                            }
                         }
                     }
                 }
@@ -219,84 +154,13 @@ namespace PluginBehaviac.DataExporters
                 allParams += param;
             }
 
-            string agentName = "agent";
-
-            if (method.Owner != Behaviac.Design.VariableDef.kSelf && (!method.IsPublic || !method.IsStatic))
-            {
-                string instanceName = method.Owner.Replace("::", ".");
-                agentName = "agent_" + caller;
-
-                bool isGlobal = Plugin.IsInstanceName(instanceName, null);
-                PropertyDef ownerProperty = null;
-
-                if (!isGlobal)
-                {
-                    Debug.Check(defaultObj != null && defaultObj.Behavior != null && defaultObj.Behavior.AgentType != null);
-                    if (defaultObj != null && defaultObj.Behavior != null && defaultObj.Behavior.AgentType != null)
-                    {
-                        ownerProperty = defaultObj.Behavior.AgentType.GetPropertyByName(instanceName);
-                    }
-                }
-
-                if (isGlobal || ownerProperty == null || ownerProperty.IsCustomized || ownerProperty.IsPar) // global or customized instance
-                {
-                    stream.WriteLine("{0}behaviac.Agent {1} = behaviac.Utils.GetParentAgent(pAgent, \"{2}\");", indent, agentName, instanceName);
-                }
-                else // member instance
-                {
-                    string prop = "";
-
-                    if (ownerProperty.IsPublic)
-                    {
-                        string className = ownerProperty.ClassName.Replace("::", ".");
-
-                        if (ownerProperty.IsStatic)
-                        {
-                            prop = string.Format("{0}.{1}", className, instanceName);
-                        }
-                        else
-                        {
-                            prop = string.Format("(({0})pAgent).{1}", className, instanceName);
-                        }
-                    }
-                    else
-                    {
-                        string nativeType = DataGoExporter.GetGeneratedNativeType(ownerProperty.NativeType);
-                        prop = string.Format("({0})AgentMetaVisitor.GetProperty(pAgent, \"{1}\")", nativeType, instanceName);
-                    }
-
-                    stream.WriteLine("{0}behaviac.Agent {1} = {2};", indent, agentName, prop);
-                }
-
-                //stream.WriteLine("{0}Debug.Check(!System.Object.ReferenceEquals({1}, null) || Utils.IsStaticClass(\"{2}\"));", indent, agentName, instanceName);
-            }
-
-            string retStr = string.Empty;
             string nativeReturnType = DataGoExporter.GetGeneratedNativeType(method.NativeReturnType);
-
-            if (method.IsPublic)
-            {
-                string className = method.ClassName.Replace("::", ".");
-
-                if (method.IsStatic)
-                {
-                    retStr = string.Format("{0}.{1}({2})", className, method.BasicName, allParams);
-                }
-                else
-                {
-                    retStr = string.Format("{0}.({1}).{2}({3})", agentName, className, method.BasicName, allParams);
-                }
-            }
-            else
-            {
-                retStr = string.Format("AgentMetaVisitor.ExecuteMethod({0}, \"{1}\", {2})", agentName, method.BasicName, paramsName);
-                string typeConvertStr = (nativeReturnType == "void") ? string.Empty : "(" + nativeReturnType + ")";
-                retStr = typeConvertStr + retStr;
-            }
+            string className = method.ClassName.Replace("::", ".");
+            string retStr = string.Format("agent.(*types.{0}).{1}({2})", className, method.BasicName, allParams);
 
             if (!string.IsNullOrEmpty(var))
             {
-                stream.WriteLine("{0}{1} {2} = {3};", indent, nativeReturnType, var, retStr);
+                stream.WriteLine("{0}{1} := {2}", indent, var, retStr);
             }
 
             return retStr;
@@ -315,16 +179,7 @@ namespace PluginBehaviac.DataExporters
                     if (obj != null)
                     {
                         string nativeType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
-                        string param = string.Empty;
-
-                        if (method.IsPublic)
-                        {
-                            param = getParamName(var, caller, i);
-                        }
-                        else
-                        {
-                            param = string.Format("{0}[{1}]", paramsName, i);
-                        }
+                        string param = getParamName(var, caller, i);
 
                         string paramName = string.Format("(({0}){1}[{2}])", nativeType, paramsName, i);
 

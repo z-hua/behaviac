@@ -12,8 +12,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using Behaviac.Design;
 using Behaviac.Design.Attributes;
@@ -24,55 +22,55 @@ namespace PluginBehaviac.DataExporters
     {
         public static void GenerateClassConstructor(DefaultObject defaultObj, VariableDef variable, StringWriter stream, string indent, string var)
         {
-            if (variable.ValueClass == Behaviac.Design.VariableDef.kConst)
+            if (variable.ValueClass == VariableDef.kConst)
             {
                 Type type = variable.Value.GetType();
 
-                if (Plugin.IsArrayType(type) || Plugin.IsCustomClassType(type) || (Plugin.IsStringType(type) && !variable.IsConst))
+                if (/*Plugin.IsArrayType(type) || */Plugin.IsCustomClassType(type) || (Plugin.IsStringType(type) && !variable.IsConst))
                 {
                     if (Plugin.IsArrayType(type))
                     {
-                        string nativeType = DataCsExporter.GetGeneratedNativeType(variable.NativeType);
-                        int startIndex = nativeType.IndexOf('<');
-                        int endIndex = nativeType.LastIndexOf('>');
-                        string itemType = nativeType.Substring(startIndex + 1, endIndex - startIndex - 1);
+                        string nativeType = DataGoExporter.GetGeneratedNativeType(variable.NativeType);
+                        //int startIndex = nativeType.IndexOf('<');
+                        //int endIndex = nativeType.LastIndexOf('>');
+                        //string itemType = nativeType.Substring(startIndex + 1, endIndex - startIndex - 1);
 
-                        ArrayCsExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", itemType, var);
+                        ArrayGoExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", nativeType, var);
                     }
                     else if (Plugin.IsCustomClassType(type))
                     {
-                        string nativeType = DataCsExporter.GetGeneratedNativeType(variable.NativeType);
-                        StructCsExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", var, nativeType, null, "");
+                        string nativeType = DataGoExporter.GetGeneratedNativeType(variable.NativeType);
+                        StructGoExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", var, nativeType, null, "");
                     }
                     else if ((Plugin.IsStringType(type) && !variable.IsConst))
                     {
-                        string nativeType = DataCsExporter.GetGeneratedNativeType(variable.NativeType);
-                        string retStr = DataCsExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", nativeType, string.Empty, string.Empty);
+                        string nativeType = DataGoExporter.GetGeneratedNativeType(variable.NativeType);
+                        string retStr = DataGoExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", nativeType, string.Empty, string.Empty);
                         stream.WriteLine("{0}\t\t\t{1} = {2};", indent, var, retStr);
                     }
                 }
             }
         }
 
-        public static void GenerateClassMember(Behaviac.Design.VariableDef variable, StringWriter stream, string indent, string var)
+        public static void GenerateClassMember(VariableDef variable, StringWriter stream, string indent, string var)
         {
-            if (variable.ValueClass == Behaviac.Design.VariableDef.kConst)
+            if (variable.ValueClass == VariableDef.kConst)
             {
                 Type type = variable.Value.GetType();
 
-                if (Plugin.IsArrayType(type) || Plugin.IsCustomClassType(type) || (Plugin.IsStringType(type) && !variable.IsConst))
+                if (/*Plugin.IsArrayType(type) || */Plugin.IsCustomClassType(type) || (Plugin.IsStringType(type) && !variable.IsConst))
                 {
-                    string nativeType = DataCsExporter.GetGeneratedNativeType(variable.NativeType);
+                    string nativeType = DataGoExporter.GetGeneratedNativeType(variable.NativeType);
 
-                    bool setNull = Plugin.IsArrayType(type);
+                    /*bool setNull = Plugin.IsArrayType(type);
 
                     if (!setNull && Plugin.IsCustomClassType(type))
                     {
-                        Attribute[] attributes = (Attribute[])type.GetCustomAttributes(typeof(Behaviac.Design.ClassDescAttribute), false);
+                        Attribute[] attributes = (Attribute[])type.GetCustomAttributes(typeof(ClassDescAttribute), false);
 
                         if (attributes.Length > 0)
                         {
-                            Behaviac.Design.ClassDescAttribute classDesc = (Behaviac.Design.ClassDescAttribute)attributes[0];
+                            ClassDescAttribute classDesc = (ClassDescAttribute)attributes[0];
 
                             if (!classDesc.IsStruct)
                             {
@@ -84,9 +82,9 @@ namespace PluginBehaviac.DataExporters
                     if (setNull)
                     {
                         var += " = null";
-                    }
+                    }*/
 
-                    stream.WriteLine("{0}\t\t{1} {2};", indent, nativeType, var);
+                    stream.WriteLine("\t{0} {1}", var, nativeType);
                 }
             }
         }
@@ -95,12 +93,18 @@ namespace PluginBehaviac.DataExporters
         {
             string retStr = string.Empty;
 
-            if (variable.ValueClass == Behaviac.Design.VariableDef.kConst)
+            if (variable.ValueClass == VariableDef.kConst)
             {
                 bool shouldGenerate = true;
                 Type type = variable.Value.GetType();
 
-                if (Plugin.IsArrayType(type) || Plugin.IsCustomClassType(type) || (Plugin.IsStringType(type) && !variable.IsConst))
+/*                if (Plugin.IsArrayType(type))
+                {
+                    string nativeType = DataGoExporter.GetGeneratedNativeType(variable.NativeType);
+                    ArrayGoExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", nativeType, var);
+                }*/
+
+                if (/*Plugin.IsArrayType(type) || */Plugin.IsCustomClassType(type) || (Plugin.IsStringType(type) && !variable.IsConst))
                 {
                     shouldGenerate = false;
                 }
@@ -118,20 +122,20 @@ namespace PluginBehaviac.DataExporters
             return retStr;
         }
 
-        public static void PostGenerateCode(Behaviac.Design.VariableDef variable, StringWriter stream, string indent, string typename, string var, string caller, object parent = null, string paramName = "", string setValue = null)
+        public static void PostGenerateCode(VariableDef variable, StringWriter stream, string indent, string typename, string var, string caller, object parent = null, string paramName = "", string setValue = null)
         {
-            if (variable.ValueClass == Behaviac.Design.VariableDef.kConst)
+            if (variable.ValueClass == VariableDef.kConst)
             {
                 Type type = variable.Value.GetType();
 
                 if (Plugin.IsCustomClassType(type) && !DesignerStruct.IsPureConstDatum(variable.Value, parent, paramName))
                 {
-                    StructCsExporter.PostGenerateCode(variable.Value, stream, indent, var, parent, paramName);
+                    StructGoExporter.PostGenerateCode(variable.Value, stream, indent, var, parent, paramName);
                 }
             }
             else if (variable.Property != null)
             {
-                PropertyCsExporter.PostGenerateCode(variable.Property, variable.ArrayIndexElement, stream, indent, typename, var, caller, setValue);
+                PropertyGoExporter.PostGenerateCode(variable.Property, variable.ArrayIndexElement, stream, indent, typename, var, caller, setValue);
             }
         }
     }

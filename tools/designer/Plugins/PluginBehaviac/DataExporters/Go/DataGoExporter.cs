@@ -12,12 +12,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.Reflection;
 using Behaviac.Design;
-using Behaviac.Design.Attributes;
 
 namespace PluginBehaviac.DataExporters
 {
@@ -41,35 +37,35 @@ namespace PluginBehaviac.DataExporters
             {
                 Type type = obj.GetType();
 
-                if (obj is Behaviac.Design.MethodDef)
+                if (obj is MethodDef)
                 {
-                    Behaviac.Design.MethodDef method = obj as Behaviac.Design.MethodDef;
-                    retStr = MethodCsExporter.GenerateCode(defaultObj, method, stream, indent, typename, var, caller);
+                    MethodDef method = obj as MethodDef;
+                    retStr = MethodGoExporter.GenerateCode(defaultObj, method, stream, indent, typename, var, caller);
                 }
-                else if (obj is Behaviac.Design.MethodDef.Param)
+                else if (obj is MethodDef.Param)
                 {
-                    Behaviac.Design.MethodDef.Param param = obj as Behaviac.Design.MethodDef.Param;
-                    retStr = ParameterCsExporter.GenerateCode(defaultObj, param, stream, indent, typename, var, caller);
+                    MethodDef.Param param = obj as MethodDef.Param;
+                    retStr = ParameterGoExporter.GenerateCode(defaultObj, param, stream, indent, typename, var, caller);
                 }
-                else if (obj is Behaviac.Design.ParInfo)
+                else if (obj is ParInfo)
                 {
-                    Behaviac.Design.ParInfo par = obj as Behaviac.Design.ParInfo;
-                    retStr = ParInfoCsExporter.GenerateCode(par, false, stream, indent, typename, var, caller);
+                    ParInfo par = obj as ParInfo;
+                    retStr = ParInfoGoExporter.GenerateCode(par, false, stream, indent, typename, var, caller);
                 }
-                else if (obj is Behaviac.Design.PropertyDef)
+                else if (obj is PropertyDef)
                 {
-                    Behaviac.Design.PropertyDef property = obj as Behaviac.Design.PropertyDef;
-                    retStr = PropertyCsExporter.GenerateCode(defaultObj, property, null, false, stream, indent, typename, var, caller, setValue);
+                    PropertyDef property = obj as PropertyDef;
+                    retStr = PropertyGoExporter.GenerateCode(defaultObj, property, null, false, stream, indent, typename, var, caller, setValue);
                 }
-                else if (obj is Behaviac.Design.VariableDef)
+                else if (obj is VariableDef)
                 {
-                    Behaviac.Design.VariableDef variable = obj as Behaviac.Design.VariableDef;
-                    retStr = VariableCsExporter.GenerateCode(defaultObj, variable, false, stream, indent, typename, var, caller);
+                    VariableDef variable = obj as VariableDef;
+                    retStr = VariableGoExporter.GenerateCode(defaultObj, variable, false, stream, indent, typename, var, caller);
                 }
-                else if (obj is Behaviac.Design.RightValueDef)
+                else if (obj is RightValueDef)
                 {
-                    Behaviac.Design.RightValueDef rightValue = obj as Behaviac.Design.RightValueDef;
-                    retStr = RightValueCsExporter.GenerateCode(defaultObj, rightValue, stream, indent, typename, var, caller);
+                    RightValueDef rightValue = obj as RightValueDef;
+                    retStr = RightValueGoExporter.GenerateCode(defaultObj, rightValue, stream, indent, typename, var, caller);
                 }
                 // Array type
                 else if (Plugin.IsArrayType(type))
@@ -78,18 +74,18 @@ namespace PluginBehaviac.DataExporters
 
                     if (!string.IsNullOrEmpty(typename))
                     {
-                        stream.WriteLine("{0}{1} {2};", indent, typename, var);
+                        //stream.WriteLine("{0}{1} {2};", indent, typename, var);
                     }
                     else
                     {
-                        typename = DataCsExporter.GetGeneratedNativeType(type);
+                        typename = DataGoExporter.GetGeneratedNativeType(type);
                     }
 
-                    int startIndex = typename.IndexOf('<');
+                    /*int startIndex = typename.IndexOf('<');
                     int endIndex = typename.LastIndexOf('>');
-                    string itemType = typename.Substring(startIndex + 1, endIndex - startIndex - 1);
+                    string itemType = typename.Substring(startIndex + 1, endIndex - startIndex - 1);*/
 
-                    ArrayCsExporter.GenerateCode(obj, defaultObj, stream, indent, itemType, var);
+                    ArrayGoExporter.GenerateCode(obj, defaultObj, stream, indent, typename, var);
                 }
                 // Struct type
                 else if (Plugin.IsCustomClassType(type))
@@ -101,7 +97,7 @@ namespace PluginBehaviac.DataExporters
                         stream.WriteLine("{0}{1} {2};", indent, typename, var);
                     }
 
-                    StructCsExporter.GenerateCode(obj, defaultObj, stream, indent, var, typename, null, "");
+                    StructGoExporter.GenerateCode(obj, defaultObj, stream, indent, var, typename, null, "");
                 }
                 // Other types
                 else
@@ -129,22 +125,21 @@ namespace PluginBehaviac.DataExporters
                     }
                     else if (Plugin.IsEnumType(type)) // enum
                     {
-                        retStr = EnumCsExporter.GeneratedCode(obj);
+                        retStr = EnumGoExporter.GeneratedCode(obj);
                     }
                     else if (type == typeof(float)) // float
                     {
-                        retStr += "f";
                     }
 
                     if (!string.IsNullOrEmpty(var))
                     {
                         if (string.IsNullOrEmpty(typename))
                         {
-                            stream.WriteLine("{0}{1} = {2};", indent, var, retStr);
+                            stream.WriteLine("{0}{1} = {2}", indent, var, retStr);
                         }
                         else
                         {
-                            stream.WriteLine("{0}{1} {2} = {3};", indent, typename, var, retStr);
+                            stream.WriteLine("{0}{1} := {2}", indent, var, retStr);
                         }
                     }
                 }

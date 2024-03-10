@@ -610,5 +610,72 @@ namespace Behaviac.Design
                 operation.Count++;
             }
         }
+
+        public static string ToCamelCase(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                return s;
+
+            string result = "";
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (i == 0)
+                {
+                    result += char.ToLower(s[i]);
+                    continue;
+                }
+                if (s[i] == '_')
+                {
+                    i++;
+                    result += char.ToUpper(s[i]);
+                    continue;
+                }
+                result += s[i];
+            }
+            return result;
+        }
+
+        public static string ToPascalCase(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                return s;
+
+            string result = "";
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (i == 0)
+                {
+                    result += char.ToUpper(s[i]);
+                    continue;
+                }
+                if (s[i] == '_')
+                {
+                    i++;
+                    if (i >= s.Length)
+                        continue;
+                    result += char.ToUpper(s[i]);
+                    continue;
+                }
+                result += s[i];
+            }
+            return result;
+        }
+
+        public static string ToSnakeCase(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                return s;
+
+            string result = "";
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (i > 0 && s[i] >= 'A' && s[i] <= 'Z' && s[i - 1] != '_')
+                {
+                    result += '_';
+                }
+                result += s[i];
+            }
+            return result;
+        }
     }
 }

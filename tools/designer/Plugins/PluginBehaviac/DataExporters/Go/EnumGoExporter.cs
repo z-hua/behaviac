@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Behaviac.Design;
+using XMLPluginBehaviac;
 
 namespace PluginBehaviac.DataExporters
 {
@@ -27,6 +28,36 @@ namespace PluginBehaviac.DataExporters
 
             if (obj != null)
             {
+                if (obj is behaviac_EBTStatus status1)
+                {
+                    switch (status1)
+                    {
+                        case behaviac_EBTStatus.BT_SUCCESS:
+                            return "bt.Success";
+                        case behaviac_EBTStatus.BT_FAILURE:
+                            return "bt.Failure";
+                        case behaviac_EBTStatus.BT_RUNNING:
+                            return "bt.Running";
+                        default:
+                            return "bt.Invalid";
+                    }
+                }
+
+                if (obj is EBTStatus status2)
+                {
+                    switch (status2)
+                    {
+                        case EBTStatus.BT_SUCCESS:
+                            return "bt.Success";
+                        case EBTStatus.BT_FAILURE:
+                            return "bt.Failure";
+                        case EBTStatus.BT_RUNNING:
+                            return "bt.Running";
+                        default:
+                            return "bt.Invalid";
+                    }
+                }
+
                 Type type = obj.GetType();
                 Debug.Check(type.IsEnum);
 

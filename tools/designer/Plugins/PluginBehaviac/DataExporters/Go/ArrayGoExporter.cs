@@ -33,17 +33,23 @@ namespace PluginBehaviac.DataExporters
 
                     if (list.Count > 0)
                     {
-                        stream.WriteLine("{0}{1} = new {2}();", indent, var, DataCsExporter.GetGeneratedNativeType(type));
-                        stream.WriteLine("{0}{1}.Capacity = {2};", indent, var, list.Count);
+                        stream.Write("{0}{1} := {2}{{", indent, var, DataGoExporter.GetGeneratedNativeType(type));
 
                         for (int i = 0; i < list.Count; ++i)
                         {
                             string itemName = string.Format("{0}_item{1}", var.Replace(".", "_"), i);
 
-                            DataCsExporter.GenerateCode(list[i], defaultObj, stream, indent, itemTypename, itemName, string.Empty);
+                            //DataGoExporter.GenerateCode(list[i], defaultObj, stream, indent, itemTypename, itemName, string.Empty);
 
-                            stream.WriteLine("{0}{1}.Add({2});", indent, var, itemName);
+                            // stream.WriteLine("{0}{1} = append(var, {2});", indent, var, itemName);
+                            string itemValue = DataGoExporter.GenerateCode(list[i], defaultObj, stream, indent, itemTypename, "", string.Empty);
+                            stream.Write(itemValue);
+                            if (i < list.Count - 1)
+                            {
+                                stream.Write(", ");
+                            }
                         }
+                        stream.WriteLine("}");
                     }
                 }
             }

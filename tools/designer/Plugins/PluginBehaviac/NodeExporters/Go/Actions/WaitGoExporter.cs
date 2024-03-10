@@ -27,17 +27,14 @@ namespace PluginBehaviac.NodeExporters
     {
         protected override bool ShouldGenerateClass(Node node)
         {
-            Wait wait = node as Wait;
-            return (wait != null);
+            return node is Wait;
         }
 
         protected override void GenerateConstructor(Node node, StringWriter stream, string indent, string className)
         {
             base.GenerateConstructor(node, stream, indent, className);
 
-            Wait wait = node as Wait;
-
-            if (wait == null)
+            if (!(node is Wait wait))
             {
                 return;
             }
@@ -52,12 +49,12 @@ namespace PluginBehaviac.NodeExporters
         {
             base.GenerateMember(node, stream, indent);
 
-            Wait wait = node as Wait;
-
-            if (wait == null)
+            if (!(node is Wait wait))
             {
                 return;
             }
+
+            stream.WriteLine("\tperformers.Wait");
 
             if (wait.Time != null)
             {
@@ -69,29 +66,24 @@ namespace PluginBehaviac.NodeExporters
         {
             base.GenerateMethod(node, stream, indent, className);
 
-            Wait wait = node as Wait;
-
-            if (wait == null)
+            if (!(node is Wait wait))
             {
                 return;
             }
 
             if (wait.Time != null)
             {
-                string strMethod = "{0}\t\tprotected override " + (Workspace.Current.UseIntValue ? "int GetIntTime(Agent pAgent)" : "double GetTime(Agent pAgent)");
-                stream.WriteLine(strMethod, indent);
-
-                stream.WriteLine("{0}\t\t{{", indent);
+                stream.WriteLine("func (b *{0}) GetTime(agent bt.Agent) int {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, wait.Time, stream, indent + "\t\t\t", string.Empty, string.Empty, "Time");
 
-                if (!wait.Time.IsPublic && (wait.Time.IsMethod || wait.Time.Var != null && wait.Time.Var.IsProperty))
+                if (!Workspace.Current.UseIntValue)
                 {
-                    retStr = string.Format("Convert.ToDouble({0})", retStr);
+                    retStr = string.Format("int({0})", retStr);
                 }
 
-                stream.WriteLine("{0}\t\t\treturn {1};", indent, retStr);
-                stream.WriteLine("{0}\t\t}}", indent);
+                stream.WriteLine("\treturn {0}", retStr);
+                stream.WriteLine("}");
             }
         }
     }

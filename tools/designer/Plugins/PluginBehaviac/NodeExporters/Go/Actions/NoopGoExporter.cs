@@ -19,7 +19,7 @@ namespace PluginBehaviac.NodeExporters
     {
         protected override string GetNodeBehavior(Node node, string btClassName, string nodeName)
         {
-            return "performer.NewNoop()";
+            return "performers.NewNoop()";
         }
     }
 }

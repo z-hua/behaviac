@@ -44,22 +44,18 @@ namespace PluginBehaviac.NodeExporters
 
         protected override bool ShouldGenerateClass(Node node)
         {
-            Action action = node as Action;
-            return (action != null);
+            return node is Action;
         }
 
         protected override void GenerateConstructor(Node node, StringWriter stream, string indent, string className)
         {
             base.GenerateConstructor(node, stream, indent, className);
 
-            Action action = node as Action;
 
-            if (action == null)
+            if (!(node is Action action))
             {
                 return;
             }
-
-            stream.WriteLine("\t_o.Callback = _o.callbackFn");
 
             if (action.Method != null && !isNullMethod(action.Method))
             {
@@ -71,12 +67,12 @@ namespace PluginBehaviac.NodeExporters
         {
             base.GenerateMember(node, stream, indent);
 
-            Action action = node as Action;
-
-            if (action == null)
+            if (!(node is Action action))
             {
                 return;
             }
+
+            stream.WriteLine("\tperformers.Action");
 
             if (action.Method != null && !isNullMethod(action.Method))
             {
@@ -88,17 +84,12 @@ namespace PluginBehaviac.NodeExporters
         {
             base.GenerateMethod(node, stream, indent, className);
 
-            Action action = node as Action;
-
-            if (action == null)
+            if (!(node is Action action))
             {
                 return;
             }
 
-            stream.WriteLine("func (_o *{0}) callbackFn() func(agent bt.Agent) bt.Status {{", className);
-            stream.WriteLine("\treturn func(agent bt.Agent) bt.Status {");
-
-            indent += "\t";
+            stream.WriteLine("func (b *{0}) Execute(agent bt.Agent) bt.Status {{", className);
 
             string resultStatus = getResultOptionStr(action.ResultOption);
 
@@ -111,18 +102,18 @@ namespace PluginBehaviac.NodeExporters
                 {
                     resultStatus = "result";
 
-                    stream.WriteLine("\t\tresult := {0}", method);
+                    stream.WriteLine("\tresult := {0}", method);
                     MethodGoExporter.PostGenerateCode(action.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "method");
                 }
                 else
                 {
                     if (("void" == nativeReturnType) || (EBTStatus.BT_INVALID != action.ResultOption) || action.ResultFunctor == null)
                     {
-                        stream.WriteLine("\t\t{0}", method);
+                        stream.WriteLine("\t{0}", method);
                     }
                     else
                     {
-                        stream.WriteLine("\t\tresult := {0}", method);
+                        stream.WriteLine("\tresult := {0}", method);
                     }
 
                     MethodGoExporter.PostGenerateCode(action.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "method");
@@ -139,26 +130,13 @@ namespace PluginBehaviac.NodeExporters
                         }
                         else
                         {
-                            string agentName = "agent";
-
-                            if (action.ResultFunctor.Owner != VariableDef.kSelf &&
-                                (!action.ResultFunctor.IsPublic || !action.ResultFunctor.IsStatic))
-                            {
-                                string instanceName = action.ResultFunctor.Owner.Replace("::", ".");
-                                agentName = "agent_functor";
-
-                                stream.WriteLine("{0}behaviac.Agent {1} = behaviac.Utils.GetParentAgent(pAgent, \"{2}\");", indent, agentName, instanceName);
-                                //stream.WriteLine("{0}Debug.Check(!System.Object.ReferenceEquals({1}, null) || Utils.IsStaticClass(\"{2}\"));", indent, agentName, instanceName);
-                            }
-
-                            resultStatus = string.Format("{0}.({1}).{2}(result)", agentName, action.Method.ClassName, action.ResultFunctor.BasicName);
+                            resultStatus = string.Format("agent.(*types.{0}).{1}(result)", action.Method.ClassName, action.ResultFunctor.BasicName);
                         }
                     }
                 }
             }
 
-            stream.WriteLine("\t\treturn {0}", resultStatus);
-            stream.WriteLine("\t}");
+            stream.WriteLine("\treturn {0}", resultStatus);
             stream.WriteLine("}");
         }
     }
