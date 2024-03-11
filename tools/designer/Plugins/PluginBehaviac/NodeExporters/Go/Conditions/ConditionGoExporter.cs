@@ -92,13 +92,6 @@ namespace PluginBehaviac.NodeExporters
                             if (prop != null)
                             {
                                 string property = PropertyGoExporter.GetProperty(defaultObj, prop, var.ArrayIndexElement, stream, indent, operandName, nodeName);
-
-                                if (prop.IsArrayElement && var.ArrayIndexElement != null)
-                                {
-                                    ParameterGoExporter.GenerateCode(defaultObj, var.ArrayIndexElement, stream, indent, "int", operandName + "_index", nodeName + "_opl");
-                                    property = string.Format("({0})[{1}_index]", property, operandName);
-                                }
-
                                 stream.WriteLine("{0}{1} := {2}", indent, operandName, property);
                             }
                         }

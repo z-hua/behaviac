@@ -154,7 +154,6 @@ namespace PluginBehaviac.DataExporters
                 allParams += param;
             }
 
-            string nativeReturnType = DataGoExporter.GetGeneratedNativeType(method.NativeReturnType);
             string className = method.ClassName.Replace("::", ".");
             string retStr = string.Format("agent.(*types.{0}).{1}({2})", className, method.BasicName, allParams);
 
