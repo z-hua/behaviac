@@ -175,6 +175,8 @@
     <Compile Include="NodeExporters\Cpp\NodeCppExporter.cs" />
     <Compile Include="NodeExporters\Cpp\Actions\WaitCppExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\ActionGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Actions\AssignmentGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Actions\ComputeGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\EndGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\WaitFramesGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Actions\WaitGoExporter.cs" />
@@ -183,6 +185,9 @@
     <Compile Include="NodeExporters\Go\Attachments\EffectorGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Attachments\EventGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Attachments\PreconditionGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\IfElseGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\ParallelGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\ReferencedBehaviorGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SelectorStochasticGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SelectorGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SequenceStochasticGoExporter.cs" />
@@ -193,6 +198,19 @@
     <Compile Include="NodeExporters\Go\Conditions\TrueGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Conditions\AndGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Conditions\OrGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorAlwaysRunningGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorAlwaysFailureGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorFailureUntilGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorFramesGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorAlwaysSuccessGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorLogGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorLoopGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorLoopUntilGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorSuccessUntilGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorNotGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorCountGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorTimeGoExporter.cs" />
     <Compile Include="NodeExporters\Go\NodeGoExporter.cs" />
     <Compile Include="NodeExporters\NodeExporter.cs" />
     <Compile Include="Nodes\Actions\Compute.cs" />
@@ -381,9 +399,7 @@
   <ItemGroup>
     <None Include="Resources\method.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="NodeExporters\Go\Decorators\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

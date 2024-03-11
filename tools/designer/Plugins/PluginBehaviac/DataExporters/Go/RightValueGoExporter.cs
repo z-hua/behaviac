@@ -62,7 +62,7 @@ namespace PluginBehaviac.DataExporters
             return retStr;
         }
 
-        public static void PostGenerateCode(Behaviac.Design.RightValueDef rightValue, StringWriter stream, string indent, string typename, string var, string caller, object parent = null, string paramName = "")
+        public static void PostGenerateCode(RightValueDef rightValue, StringWriter stream, string indent, string typename, string var, string caller, object parent = null, string paramName = "")
         {
             if (rightValue.IsMethod)
             {

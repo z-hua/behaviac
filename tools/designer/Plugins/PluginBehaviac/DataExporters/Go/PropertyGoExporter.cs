@@ -38,13 +38,11 @@ namespace PluginBehaviac.DataExporters
                 {
                     if (string.IsNullOrEmpty(typename))
                     {
-                        stream.WriteLine("{0}{1} = {2};", indent, var, prop);
+                        stream.WriteLine("{0}{1} = {2}", indent, var, prop);
                     }
                     else
                     {
-                        string nativeType = DataGoExporter.GetPropertyNativeType(property, arrayIndexElement);
-
-                        stream.WriteLine("{0}{1} {2} = {3};", indent, nativeType, var, prop);
+                        stream.WriteLine("{0}{1} := {2}", indent, var, prop);
                     }
                 }
             }

@@ -15,7 +15,7 @@ using Behaviac.Design.Nodes;
 
 namespace PluginBehaviac.NodeExporters
 {
-    public class SelectorStochasticGoExporter : NodeGoExporter
+    public class IfElseGoExporter : NodeGoExporter
     {
         protected override string GetNodeBehavior(Node node, string btClassName, string nodeName)
         {
