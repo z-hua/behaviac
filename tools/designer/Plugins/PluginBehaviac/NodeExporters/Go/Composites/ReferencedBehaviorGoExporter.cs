@@ -11,11 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Behaviac.Design;
 using Behaviac.Design.Nodes;
 using PluginBehaviac.DataExporters;
 
@@ -37,6 +33,8 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
+            stream.WriteLine("\tcomposites.Subtree");
+
             if (pReferencedBehavior.ReferenceBehavior != null)
             {
                 RightValueGoExporter.GenerateClassMember(pReferencedBehavior.ReferenceBehavior, stream, indent, "Behavior");
@@ -54,8 +52,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (pReferencedBehavior.ReferenceBehavior != null)
             {
-                stream.WriteLine("{0}\t\tpublic override string GetReferencedTree(Agent pAgent)", indent);
-                stream.WriteLine("{0}\t\t{{", indent);
+                stream.WriteLine("func (b *{0}) GetSubtree(agent bt.Agent) string {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, pReferencedBehavior.ReferenceBehavior, stream, indent + "\t", string.Empty, string.Empty, "Behavior");
 
@@ -68,18 +65,17 @@ namespace PluginBehaviac.NodeExporters
 
                 if (!bConst)
                 {
-                    stream.WriteLine("{0}\tif (pAgent != null) {{", indent);
-                }
-
-                stream.WriteLine("{0}\treturn {1};", indent, retStr);
-
-                if (!bConst)
-                {
+                    stream.WriteLine("{0}\tif (agent != null) {{", indent);
+                    stream.WriteLine("{0}\t\treturn {1}", indent, retStr);
                     stream.WriteLine("{0}\t}}", indent);
-                    stream.WriteLine("{0}\treturn null;", indent);
+                    stream.WriteLine("{0}\tpanic(\"subtree not found\")", indent);
+                }
+                else
+                {
+                    stream.WriteLine("{0}\treturn {1}", indent, retStr);
                 }
 
-                stream.WriteLine("{0}\t\t}}", indent);
+                stream.WriteLine("}");
             }
         }
 
@@ -87,7 +83,7 @@ namespace PluginBehaviac.NodeExporters
         {
             base.GenerateConstructor(node, stream, indent, className);
 
-            if (!(node is ReferencedBehavior pReferencedBehavior))
+            /*if (!(node is ReferencedBehavior pReferencedBehavior))
             {
                 return;
             }
@@ -107,7 +103,7 @@ namespace PluginBehaviac.NodeExporters
                 method = method.Replace("\"", "\\\"");
                 stream.WriteLine("{0}\tthis.m_taskMethod = AgentMeta.ParseMethod(\"{1}\");", indent, method);
                 stream.WriteLine("{0}\tDebug.Check(this.m_taskMethod != null);", indent);
-            }
+            }*/
         }
     }
 }

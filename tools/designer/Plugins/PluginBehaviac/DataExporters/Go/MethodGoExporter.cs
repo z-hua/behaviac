@@ -37,20 +37,20 @@ namespace PluginBehaviac.DataExporters
 
                         Type type = obj.GetType();
 
-                        if (Plugin.IsArrayType(type))
+                        if (Behaviac.Design.Plugin.IsArrayType(type))
                         {
-                            string typename = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
+                            string typename = GoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
                             int startIndex = typename.IndexOf('<');
                             int endIndex = typename.LastIndexOf('>');
                             string itemType = typename.Substring(startIndex + 1, endIndex - startIndex - 1);
 
                             ArrayGoExporter.GenerateCode(obj, defaultObj, stream, indent + "\t\t\t", itemType, param);
                         }
-                        else if (Plugin.IsCustomClassType(type))
+                        else if (Behaviac.Design.Plugin.IsCustomClassType(type))
                         {
                             if (DesignerStruct.IsPureConstDatum(obj, method, method.Params[i].Name))
                             {
-                                string paramType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
+                                string paramType = GoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
                                 StructGoExporter.GenerateCode(obj, defaultObj, stream, indent + "\t\t\t", param, paramType, null, "");
                             }
                         }
@@ -75,7 +75,7 @@ namespace PluginBehaviac.DataExporters
                 if (!method.Params[i].IsProperty && !method.Params[i].IsLocalVar && method.Params[i].Value != null)
                 {
                     string param = getParamName(var, "", i);
-                    string nativeType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
+                    string nativeType = GoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
                     stream.WriteLine("\t{0} {1}", param, nativeType);
                 }
             }

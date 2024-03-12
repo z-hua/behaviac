@@ -39,7 +39,7 @@ namespace PluginBehaviac.NodeExporters
                 RightValueGoExporter.GenerateClassConstructor(node, end.EndStatus, stream, indent, "EndStatus");
             }
 
-            stream.WriteLine("\tb.Outside = {0}", end.EndOutside ? "true": "false");
+            stream.WriteLine("\tb.EndOutside = {0}", end.EndOutside ? "true": "false");
         }
 
         protected override void GenerateMember(Node node, StringWriter stream, string indent)
@@ -72,7 +72,7 @@ namespace PluginBehaviac.NodeExporters
             {
                 stream.WriteLine("func (b *{0}) GetStatus(agent bt.Agent) bt.Status {{", className);
 
-                string retStr = RightValueGoExporter.GenerateCode(node, end.EndStatus, stream, indent + "\t\t\t", string.Empty, string.Empty, "EndStatus");
+                string retStr = RightValueGoExporter.GenerateCode(node, end.EndStatus, stream, indent + "\t", string.Empty, string.Empty, "EndStatus");
 
                 stream.WriteLine("\treturn {0}", retStr);
                 stream.WriteLine("}");

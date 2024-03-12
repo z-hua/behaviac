@@ -34,7 +34,7 @@ namespace PluginBehaviac.DataExporters
             }
         }
 
-        public static void GenerateClassMember(Behaviac.Design.RightValueDef rightValue, StringWriter stream, string indent, string var)
+        public static void GenerateClassMember(RightValueDef rightValue, StringWriter stream, string indent, string var)
         {
             if (rightValue.IsMethod)
             {

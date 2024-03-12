@@ -81,14 +81,14 @@ namespace PluginBehaviac.NodeExporters
 
                     string oprStr = "opr";
 
-                    if (!Plugin.IsArrayType(prop.Type))
+/*                    if (!Plugin.IsArrayType(prop.Type))
                     {
                         if (assignment.Opr.Var != null && assignment.Opr.Var.ArrayIndexElement != null)
                         {
                             ParameterGoExporter.GenerateCode(node, assignment.Opr.Var.ArrayIndexElement, stream, indent + "\t", "int", "opr_index", "assignment_opr");
                             oprStr = string.Format("({0})[opr_index]", oprStr);
                         }
-                    }
+                    }*/
 
                     if (!prop.IsArrayElement && (prop.IsPar || prop.IsCustomized))
                     {
