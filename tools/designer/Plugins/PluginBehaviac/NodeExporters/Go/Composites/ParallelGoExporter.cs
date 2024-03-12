@@ -83,9 +83,9 @@ namespace PluginBehaviac.NodeExporters
             switch (policy)
             {
                 case ExitPolicy.EXIT_NONE:
-                    return "composites.ParallesExitNone";
+                    return "composites.ParallelExitNone";
                 case ExitPolicy.EXIT_ABORT_RUNNINGSIBLINGS:
-                    return "composites.ParallesExitAbort";
+                    return "composites.ParallelExitAbort";
                 default:
                     return "";
             }
