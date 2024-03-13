@@ -42,6 +42,7 @@ namespace PluginBehaviac.NodeExporters
             stream.WriteLine("\tn.Task = \"{0}\"", evt.Task.BasicName);
             stream.WriteLine("\tn.Once = {0}", evt.TriggeredOnce ? "true" : "false");
             stream.WriteLine("\tn.Mode = {0}", (evt.TriggerMode == TriggerMode.Transfer) ? "bt.EventModeTransfer" : "bt.EventModeReturn");
+            stream.WriteLine("\tn.Tree = {0}", evt.ReferenceFilename);
             
             base.GenerateConstructor(attachment, stream, indent, className);
 

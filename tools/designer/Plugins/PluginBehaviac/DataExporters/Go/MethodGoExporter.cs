@@ -114,15 +114,6 @@ namespace PluginBehaviac.DataExporters
                                 string property = PropertyGoExporter.GetProperty(defaultObj, prop, v.ArrayIndexElement, stream, indent, param, caller);
                                 param = string.Format("({0})[{1}]", property, param);
                             }
-                            /*else if (v.ArrayIndexElement.Value is VariableDef valueVar)
-                            {
-                                string index = VariableGoExporter.GenerateCode(defaultObj, valueVar, false, stream, indent, "", "", caller);
-                                param = string.Format("{0}[{1}]", param, index);
-                            }
-                            else
-                            {
-                                param = string.Format("{0}[{1}]", param, v.ArrayIndexElement.Value);
-                            }*/
                         }
                     }
                 }

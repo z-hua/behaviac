@@ -84,7 +84,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) Update(agent bt.Agent, tree *bt.Tree) bt.Status {{", className);
+            stream.WriteLine("func (n *{0}) Update(agent bt.Agent, args ...interface{}) bt.Status {{", className);
             stream.WriteLine("\tresult := bt.Success", indent);
 
             if (attach.IsAction())
