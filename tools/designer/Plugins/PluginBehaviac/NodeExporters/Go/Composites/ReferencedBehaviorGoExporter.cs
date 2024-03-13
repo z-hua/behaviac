@@ -52,7 +52,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (pReferencedBehavior.ReferenceBehavior != null)
             {
-                stream.WriteLine("func (b *{0}) GetSubtree(agent bt.Agent) string {{", className);
+                stream.WriteLine("func (n *{0}) GetSubtree(agent bt.Agent) string {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, pReferencedBehavior.ReferenceBehavior, stream, indent + "\t", string.Empty, string.Empty, "Behavior");
 
@@ -65,7 +65,7 @@ namespace PluginBehaviac.NodeExporters
 
                 if (!bConst)
                 {
-                    stream.WriteLine("{0}\tif (agent != null) {{", indent);
+                    stream.WriteLine("{0}\tif (agent != nil) {{", indent);
                     stream.WriteLine("{0}\t\treturn {1}", indent, retStr);
                     stream.WriteLine("{0}\t}}", indent);
                     stream.WriteLine("{0}\tpanic(\"subtree not found\")", indent);

@@ -89,21 +89,21 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (b *{0}) Execute(agent bt.Agent) bt.Status {{", className);
+            stream.WriteLine("func (n *{0}) Execute(agent bt.Agent, tree *bt.Tree) bt.Status {{", className);
 
             string resultStatus = getResultOptionStr(action.ResultOption);
 
             if (action.Method != null && !isNullMethod(action.Method))
             {
-                string nativeReturnType = DataGoExporter.GetGeneratedNativeType(action.Method.NativeReturnType);
-                string method = MethodGoExporter.GenerateCode(node, action.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "method");
+                string nativeReturnType = GoExporter.GetGeneratedNativeType(action.Method.NativeReturnType);
+                string method = MethodGoExporter.GenerateCode(node, action.Method, stream, indent + "\t", string.Empty, string.Empty, "method");
 
                 if ("behaviac.EBTStatus" == nativeReturnType)
                 {
                     resultStatus = "result";
 
                     stream.WriteLine("\tresult := {0}", method);
-                    MethodGoExporter.PostGenerateCode(action.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "method");
+                    MethodGoExporter.PostGenerateCode(action.Method, stream, indent + "\t", string.Empty, string.Empty, "method");
                 }
                 else
                 {
@@ -116,17 +116,17 @@ namespace PluginBehaviac.NodeExporters
                         stream.WriteLine("\tresult := {0}", method);
                     }
 
-                    MethodGoExporter.PostGenerateCode(action.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "method");
+                    MethodGoExporter.PostGenerateCode(action.Method, stream, indent + "\t", string.Empty, string.Empty, "method");
 
                     if (EBTStatus.BT_INVALID != action.ResultOption)
                     {
                         resultStatus = getResultOptionStr(action.ResultOption);
                     }
-                    else if (Plugin.IsMatchedStatusMethod(action.Method, action.ResultFunctor))
+                    else if (Behaviac.Design.Plugin.IsMatchedStatusMethod(action.Method, action.ResultFunctor))
                     {
                         if ("void" == nativeReturnType)
                         {
-                            resultStatus = MethodGoExporter.GenerateCode(node, action.ResultFunctor, stream, indent + "\t\t\t", string.Empty, string.Empty, "functor");
+                            resultStatus = MethodGoExporter.GenerateCode(node, action.ResultFunctor, stream, indent + "\t", string.Empty, string.Empty, "functor");
                         }
                         else
                         {

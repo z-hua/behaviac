@@ -68,7 +68,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (decoratorFrames.Frames != null)
             {
-                stream.WriteLine("func (b *{0}) GetTime(agent bt.Agent) int {{", className);
+                stream.WriteLine("func (n *{0}) GetTime(agent bt.Agent) int {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, decoratorFrames.Frames, stream, indent + "\t\t\t", string.Empty, string.Empty, "Frames");
 

@@ -26,25 +26,22 @@ namespace PluginBehaviac.DataExporters
             {
                 Type type = variable.Value.GetType();
 
-                if (/*Plugin.IsArrayType(type) || */Plugin.IsCustomClassType(type) || (Plugin.IsStringType(type) && !variable.IsConst))
+                if (Plugin.IsCustomClassType(type) || (Plugin.IsStringType(type) && !variable.IsConst))
                 {
                     if (Plugin.IsArrayType(type))
                     {
-                        string nativeType = DataGoExporter.GetGeneratedNativeType(variable.NativeType);
-                        //int startIndex = nativeType.IndexOf('<');
-                        //int endIndex = nativeType.LastIndexOf('>');
-                        //string itemType = nativeType.Substring(startIndex + 1, endIndex - startIndex - 1);
+                        string nativeType = GoExporter.GetGeneratedNativeType(variable.NativeType);
 
                         ArrayGoExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", nativeType, var);
                     }
                     else if (Plugin.IsCustomClassType(type))
                     {
-                        string nativeType = DataGoExporter.GetGeneratedNativeType(variable.NativeType);
+                        string nativeType = GoExporter.GetGeneratedNativeType(variable.NativeType);
                         StructGoExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", var, nativeType, null, "");
                     }
                     else if ((Plugin.IsStringType(type) && !variable.IsConst))
                     {
-                        string nativeType = DataGoExporter.GetGeneratedNativeType(variable.NativeType);
+                        string nativeType = GoExporter.GetGeneratedNativeType(variable.NativeType);
                         string retStr = DataGoExporter.GenerateCode(variable.Value, defaultObj, stream, indent + "\t\t\t", nativeType, string.Empty, string.Empty);
                         stream.WriteLine("{0}\t\t\t{1} = {2};", indent, var, retStr);
                     }

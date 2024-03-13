@@ -11,36 +11,25 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using Behaviac.Design;
-using Behaviac.Design.Attributes;
 
 namespace PluginBehaviac.DataExporters
 {
     public class ParInfoGoExporter
     {
-        public static string GenerateCode(Behaviac.Design.PropertyDef property, bool isRefParam, StringWriter stream, string indent, string typename, string var, string caller)
+        public static string GenerateCode(PropertyDef property, bool isRefParam, StringWriter stream, string indent, string typename, string var, string caller)
         {
-            bool shouldDefineType = true;
-
             if (string.IsNullOrEmpty(typename))
             {
-                shouldDefineType = false;
                 typename = property.NativeType;
             }
             else if (typename == "System.Object" || typename == "System.Collections.IList")
             {
                 typename = property.NativeType;
             }
-            else
-            {
-                //
-            }
 
-            typename = DataGoExporter.GetGeneratedNativeType(typename);
+            typename = GoExporter.GetGeneratedNativeType(typename);
 
             if (property.IsArrayElement && !typename.StartsWith("List<"))
             {
@@ -48,23 +37,11 @@ namespace PluginBehaviac.DataExporters
             }
 
             string propBasicName = property.BasicName.Replace("[]", "");
-            uint id = Behaviac.Design.CRC32.CalcCRC(propBasicName);
-            string retStr = string.Format("pAgent.GetVariable<{0}>({1}u)", typename, id);
+            string retStr = string.Format("tree.GetLocal(\"{0}\").({1})", propBasicName, typename);
 
             if (!string.IsNullOrEmpty(var))
             {
-                stream.WriteLine("{0}Debug.Check(behaviac.Utils.MakeVariableId(\"{1}\") == {2}u);", indent, propBasicName, id);
-
-                {
-                    if (shouldDefineType)
-                    {
-                        stream.WriteLine("{0}{1} {2} = {3};", indent, typename, var, retStr);
-                    }
-                    else
-                    {
-                        stream.WriteLine("{0}{1} = {2};", indent, var, retStr);
-                    }
-                }
+                stream.WriteLine("{0}{1} = {2}", indent, var, retStr);
             }
 
             return retStr;
@@ -77,7 +54,7 @@ namespace PluginBehaviac.DataExporters
                 typename = property.NativeType;
             }
 
-            typename = DataGoExporter.GetGeneratedNativeType(typename);
+            typename = GoExporter.GetGeneratedNativeType(typename);
 
             string propBasicName = property.BasicName.Replace("[]", "");
             uint id = CRC32.CalcCRC(propBasicName);
@@ -92,7 +69,7 @@ namespace PluginBehaviac.DataExporters
 
             if (property != null)
             {
-                string typename = DataGoExporter.GetGeneratedNativeType(property.NativeType);
+                string typename = GoExporter.GetGeneratedNativeType(property.NativeType);
 
                 if (property.IsArrayElement && !typename.StartsWith("List<"))
                 {
@@ -100,7 +77,7 @@ namespace PluginBehaviac.DataExporters
                 }
 
                 string propBasicName = property.BasicName.Replace("[]", "");
-                uint id = Behaviac.Design.CRC32.CalcCRC(propBasicName);
+                uint id = CRC32.CalcCRC(propBasicName);
 
                 stream.WriteLine("{0}Debug.Check(behaviac.Utils.MakeVariableId(\"{1}\") == {2}u);", indent, propBasicName, id);
                 retStr = string.Format("{0}.GetVariable<{1}>({2}u)", agentName, typename, id);

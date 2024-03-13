@@ -11,11 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Behaviac.Design;
 using Behaviac.Design.Attachments;
 
 namespace PluginBehaviac.NodeExporters
@@ -27,43 +23,29 @@ namespace PluginBehaviac.NodeExporters
             return true;
         }
 
-        protected override void GenerateConstructor(Attachment attachment, StringWriter stream, string indent, string className)
+        protected override void GenerateMember(Attachment attachment, StringWriter stream, string indent)
         {
-            base.GenerateConstructor(attachment, stream, indent, className);
+            stream.WriteLine("\tbt.Event");
 
-            Event evt = attachment as Event;
-
-            if (evt == null)
-            {
-                return;
-            }
-
-            string triggerMode = (evt.TriggerMode == TriggerMode.Transfer) ? "TriggerMode.TM_Transfer" : "TriggerMode.TM_Return";
-            string triggeredOnce = evt.TriggeredOnce ? "true" : "false";
-
-            string method = evt.Task.GetExportValue();
-            method = method.Replace("\"", "\\\"");
-
-            stream.WriteLine("{0}\t\t\tthis.Initialize(\"{1}\", \"{2}\", {3}, {4});",
-                             indent, method, evt.ReferenceFilename, triggerMode, triggeredOnce);
+            base.GenerateMember(attachment, stream, indent);
         }
 
-        protected override void GenerateMethod(Attachment attachment, StringWriter stream, string indent)
+        protected override void GenerateConstructor(Attachment attachment, StringWriter stream, string indent, string className)
         {
-            Event evt = attachment as Event;
-
-            if (evt == null)
+            if (!(attachment is Event evt))
             {
                 return;
             }
 
-            stream.WriteLine("{0}\t\tpublic void Initialize(string eventName, string referencedBehavior, TriggerMode mode, bool once)", indent);
-            stream.WriteLine("{0}\t\t{{", indent);
-            stream.WriteLine("{0}\t\t\tthis.m_event = AgentMeta.ParseMethod(eventName, ref this.m_eventName);", indent);
-            stream.WriteLine("{0}\t\t\tthis.m_referencedBehaviorPath = referencedBehavior;", indent);
-            stream.WriteLine("{0}\t\t\tthis.m_triggerMode = mode;", indent);
-            stream.WriteLine("{0}\t\t\tthis.m_bTriggeredOnce = once;", indent);
-            stream.WriteLine("{0}\t\t}}", indent);
+            stream.WriteLine("\tn := new({0})", className);
+            stream.WriteLine("\tn.Id = {0}", evt.Id);
+            stream.WriteLine("\tn.Task = \"{0}\"", evt.Task.BasicName);
+            stream.WriteLine("\tn.Once = {0}", evt.TriggeredOnce ? "true" : "false");
+            stream.WriteLine("\tn.Mode = {0}", (evt.TriggerMode == TriggerMode.Transfer) ? "bt.EventModeTransfer" : "bt.EventModeReturn");
+            
+            base.GenerateConstructor(attachment, stream, indent, className);
+
+            stream.WriteLine("\treturn n");
         }
     }
 }

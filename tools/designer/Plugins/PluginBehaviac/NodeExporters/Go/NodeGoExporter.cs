@@ -75,7 +75,6 @@ namespace PluginBehaviac.NodeExporters
             {
                 string className = GetGeneratedClassName(node, btClassName, nodeName);
 
-                //stream.WriteLine("{0}\tclass {1} : behaviac.{2}\r\n{0}\t{{", indent, className, node.ExportClass);
                 stream.WriteLine("type {0} struct {{", className);
 
                 GenerateMember(node, stream, indent);
@@ -84,11 +83,11 @@ namespace PluginBehaviac.NodeExporters
                 stream.WriteLine();
 
                 stream.WriteLine("func New{0}() *{0} {{", className);
-                stream.WriteLine("\tb := new({0})", className);
+                stream.WriteLine("\tn := new({0})", className);
 
                 GenerateConstructor(node, stream, indent, className);
 
-                stream.WriteLine("\treturn b");
+                stream.WriteLine("\treturn n");
                 stream.WriteLine("}");
                 stream.WriteLine();
 

@@ -60,7 +60,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (loopUntil.Count != null)
             {
-                stream.WriteLine("func (b *{0}) GetCount(agent bt.Agent) int {{", className);
+                stream.WriteLine("func (n *{0}) GetCount(agent bt.Agent) int {{", className);
 
                 string retStr = VariableGoExporter.GenerateCode(node, loopUntil.Count, false, stream, indent + "\t", string.Empty, string.Empty, string.Empty);
 

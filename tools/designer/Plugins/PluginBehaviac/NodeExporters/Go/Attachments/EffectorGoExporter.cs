@@ -11,45 +11,49 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Behaviac.Design;
-using Behaviac.Design.Nodes;
 using Behaviac.Design.Attachments;
-using PluginBehaviac.DataExporters;
 using PluginBehaviac.Events;
 
 namespace PluginBehaviac.NodeExporters
 {
     public class EffectorGoExporter : AttachActionGoExporter
     {
+        protected override void GenerateMember(Attachment attachment, StringWriter stream, string indent)
+        {
+            stream.WriteLine("\tbt.Effector");
+
+            base.GenerateMember(attachment, stream, indent);
+        }
+
         protected override void GenerateConstructor(Attachment attachment, StringWriter stream, string indent, string className)
         {
-            base.GenerateConstructor(attachment, stream, indent, className);
-
-            PluginBehaviac.Events.Effector effector = attachment as PluginBehaviac.Events.Effector;
-
-            if (effector == null)
+            if (!(attachment is Effector effector))
             {
                 return;
             }
 
-            string phase = "Effector.EPhase.E_SUCCESS";
+            stream.WriteLine("\tn := new({0})", className);
+            stream.WriteLine("\tn.Id = {0}", effector.Id);
+
+            string phase = "bt.EffectorPhaseSuccess";
 
             switch (effector.Phase)
             {
                 case EffectorPhase.Failure:
-                    phase = "Effector.EPhase.E_FAILURE";
+                    phase = "bt.EffectorPhaseFailure";
                     break;
 
                 case EffectorPhase.Both:
-                    phase = "Effector.EPhase.E_BOTH";
+                    phase = "bt.EffectorPhaseBoth";
                     break;
             }
 
-            stream.WriteLine("{0}\t\t\tthis.Phase = {1};", indent, phase);
+            stream.WriteLine("\tn.Phase = {0}", phase);
+
+            base.GenerateConstructor(attachment, stream, indent, className);
+
+            stream.WriteLine("\treturn n");
         }
     }
 }

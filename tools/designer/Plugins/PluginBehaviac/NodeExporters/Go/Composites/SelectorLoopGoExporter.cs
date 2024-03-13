@@ -12,14 +12,20 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using Behaviac.Design.Nodes;
+using PluginBehaviac.Nodes;
 
 namespace PluginBehaviac.NodeExporters
 {
-    public class TaskGoExporter : NodeGoExporter
+    public class SelectorLoopGoExporter : NodeGoExporter
     {
         protected override string GetNodeBehavior(Node node, string btClassName, string nodeName)
         {
-            return "composites.NewTask()";
+            if (!(node is SelectorLoop selectorLoop))
+            {
+                return "";
+            }
+
+            return string.Format("composites.NewSwitch({0})", selectorLoop.ResetChildren ? "true" : "false");
         }
     }
 }

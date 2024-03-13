@@ -1,4 +1,4 @@
-﻿/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tencent is pleased to support the open source community by making behaviac available.
 //
 // Copyright (C) 2015-2017 THL A29 Limited, a Tencent company. All rights reserved.
@@ -11,68 +11,50 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+using System;
+using System.Collections.Generic;
+using System.Text;
 using System.IO;
+using Behaviac.Design;
 using Behaviac.Design.Nodes;
 using PluginBehaviac.Nodes;
 using PluginBehaviac.DataExporters;
 
 namespace PluginBehaviac.NodeExporters
 {
-    public class EndGoExporter : NodeGoExporter
+    public class DecoratorWeightGoExporter : DecoratorGoExporter
     {
         protected override bool ShouldGenerateClass(Node node)
         {
-            return node is End;
-        }
-
-        protected override void GenerateConstructor(Node node, StringWriter stream, string indent, string className)
-        {
-            base.GenerateConstructor(node, stream, indent, className);
-
-            if (!(node is End end))
-            {
-                return;
-            }
-
-            if (end.EndStatus != null)
-            {
-                RightValueGoExporter.GenerateClassConstructor(node, end.EndStatus, stream, indent, "EndStatus");
-            }
-
-            stream.WriteLine("\tb.EndOutside = {0}", end.EndOutside ? "true": "false");
+            return node is DecoratorWeight;
         }
 
         protected override void GenerateMember(Node node, StringWriter stream, string indent)
         {
             base.GenerateMember(node, stream, indent);
 
-            if (!(node is End end))
+            if (!(node is DecoratorWeight))
             {
                 return;
             }
 
-            stream.WriteLine("\tperformers.End");
-
-            if (end.EndStatus != null)
-            {
-                RightValueGoExporter.GenerateClassMember(end.EndStatus, stream, indent, "EndStatus");
-            }
+            stream.WriteLine("\tcomposites.ProbabilityWeight");
         }
 
         protected override void GenerateMethod(Node node, StringWriter stream, string indent, string className)
         {
             base.GenerateMethod(node, stream, indent, className);
 
-            if (!(node is End end))
+            if (!(node is DecoratorWeight decoratorWeight))
             {
                 return;
             }
 
-            if (end.EndStatus != null)
+            if (decoratorWeight.Weight != null)
             {
-                stream.WriteLine("func (n *{0}) GetStatus(agent bt.Agent) bt.Status {{", className);
+                stream.WriteLine("func (n *{0}) GetWeight(agent bt.Agent) int {{", className);
 
-                string retStr = RightValueGoExporter.GenerateCode(node, end.EndStatus, stream, indent + "\t", string.Empty, string.Empty, "EndStatus");
+                string retStr = VariableGoExporter.GenerateCode(node, decoratorWeight.Weight, false, stream, indent + "\t\t\t", string.Empty, string.Empty, string.Empty);
 
                 stream.WriteLine("\treturn {0}", retStr);
                 stream.WriteLine("}");

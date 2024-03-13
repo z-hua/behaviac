@@ -11,48 +11,57 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Behaviac.Design;
-using Behaviac.Design.Nodes;
 using Behaviac.Design.Attachments;
-using PluginBehaviac.DataExporters;
 using PluginBehaviac.Events;
 
 namespace PluginBehaviac.NodeExporters
 {
     public class PreconditionGoExporter : AttachActionGoExporter
     {
+        protected override bool ShouldGenerateClass()
+        {
+            return true;
+        }
+
+        protected override void GenerateMember(Attachment attachment, StringWriter stream, string indent)
+        {
+            stream.WriteLine("\tbt.Precondition");
+
+            base.GenerateMember(attachment, stream, indent);
+        }
+
         protected override void GenerateConstructor(Attachment attachment, StringWriter stream, string indent, string className)
         {
-            base.GenerateConstructor(attachment, stream, indent, className);
-
-            PluginBehaviac.Events.Precondition precondition = attachment as PluginBehaviac.Events.Precondition;
-
-            if (precondition == null)
+            if (!(attachment is Precondition precondition))
             {
                 return;
             }
 
-            string phase = "Precondition.EPhase.E_ENTER";
+            stream.WriteLine("\tn := new({0})", className);
+            stream.WriteLine("\tn.Id = {0}", precondition.Id);
+
+            string phase = "bt.PreconditionPhaseEnter";
 
             switch (precondition.Phase)
             {
                 case PreconditionPhase.Update:
-                    phase = "Precondition.EPhase.E_UPDATE";
+                    phase = "bt.PreconditionPhaseUpdate";
                     break;
 
                 case PreconditionPhase.Both:
-                    phase = "Precondition.EPhase.E_BOTH";
+                    phase = "bt.PreconditionPhaseBoth";
                     break;
             }
 
-            stream.WriteLine("{0}\t\t\tthis.Phase = {1};", indent, phase);
+            stream.WriteLine("\tn.Phase = {0}", phase);
 
             string isAnd = (precondition.BinaryOperator == BinaryOperator.And) ? "true" : "false";
-            stream.WriteLine("{0}\t\t\tthis.IsAnd = {1};", indent, isAnd);
+            stream.WriteLine("\tn.And = {0}", isAnd);
+
+            base.GenerateConstructor(attachment, stream, indent, className);
+
+            stream.WriteLine("\treturn n");
         }
     }
 }

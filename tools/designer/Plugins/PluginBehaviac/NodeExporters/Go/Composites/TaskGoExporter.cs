@@ -15,11 +15,11 @@ using Behaviac.Design.Nodes;
 
 namespace PluginBehaviac.NodeExporters
 {
-    public class TaskGoExporter : NodeGoExporter
+    public class IfElseGoExporter : NodeGoExporter
     {
         protected override string GetNodeBehavior(Node node, string btClassName, string nodeName)
         {
-            return "composites.NewTask()";
+            return "composites.NewIfElse()";
         }
     }
 }

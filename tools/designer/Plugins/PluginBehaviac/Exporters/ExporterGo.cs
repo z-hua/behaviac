@@ -20,6 +20,7 @@ using Behaviac.Design.Attributes;
 using PluginBehaviac.Properties;
 using PluginBehaviac.DataExporters;
 using PluginBehaviac.NodeExporters;
+using Behaviac.Design.Attachments;
 
 namespace PluginBehaviac.Exporters
 {
@@ -192,6 +193,7 @@ namespace PluginBehaviac.Exporters
             file.WriteLine();
             // write comments
             file.WriteLine("// Source file: {0}", filename);
+            file.WriteLine();
 
             string btClassName = getValidFilename(filename);
             string agentType = behavior.AgentType.Name;
@@ -208,10 +210,10 @@ namespace PluginBehaviac.Exporters
             file.WriteLine();
 
             // create the bt class
-            file.WriteLine("// {0} {1}", treeName, ((Node)behavior).CommentText);
+            /*file.WriteLine("// {0} {1}", treeName, ((Node)behavior).CommentText);
             file.WriteLine("type {0} struct {{", treeName);
             file.WriteLine("}");
-            file.WriteLine();
+            file.WriteLine();*/
 
             // export the build function
             file.WriteLine("func New{0}() *bt.Tree {{", treeName);
@@ -222,7 +224,7 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine("\t\t\tbt.SetDescriptors(\"{0}\");", DesignerPropertyUtility.RetrieveExportValue(((Behavior)behavior).DescriptorRefs));
             }
 
-            ExportPars(file, agentType, "t", (Node)behavior, "\t\t");
+            ExportPars(file, agentType, "t", (Node)behavior, "");
 
             // export its attachments
             ExportAttachment(file, btClassName, agentType, "t", (Node)behavior, "\t\t\t");
@@ -273,13 +275,13 @@ namespace PluginBehaviac.Exporters
 
         private void ExportPars(StringWriter file, string agentType, string nodeName, Node node, string indent)
         {
-            if (node is Behavior)
+            if (node is Behavior behavior)
             {
-                ExportPars(file, agentType, nodeName, ((Behavior)node).LocalVars, indent);
+                ExportPars(file, agentType, nodeName, behavior.LocalVars, indent);
             }
         }
 
-        private void ExportPars(StringWriter file, string agentType, string nodeName, List<Behaviac.Design.ParInfo> pars, string indent)
+        private void ExportPars(StringWriter file, string agentType, string nodeName, List<ParInfo> pars, string indent)
         {
             if (pars.Count > 0)
             {
@@ -288,24 +290,24 @@ namespace PluginBehaviac.Exporters
                 for (int i = 0; i < pars.Count; ++i)
                 {
                     string name = pars[i].BasicName;
-                    string type = DataGoExporter.GetGeneratedParType(pars[i].Type);
+                    string type = GoExporter.GetGeneratedParType(pars[i].Type);
                     string value = pars[i].DefaultValue.Replace("\"", "\\\"");
 
-                    file.WriteLine("{0}\t{1}.AddLocal(\"{2}\", \"{3}\", \"{4}\", \"{5}\");", indent, nodeName, agentType, type, name, value);
+                    file.WriteLine("{0}\t{1}.AddLocal(\"{2}\", {3}({4}))", indent, nodeName, name, type, value);
                 }
             }
         }
 
         private void ExportAttachmentClass(StringWriter file, string btClassName, Node node)
         {
-            foreach (Behaviac.Design.Attachments.Attachment attach in node.Attachments)
+            foreach (Attachment attach in node.Attachments)
             {
                 if (!attach.Enable)
                 {
                     continue;
                 }
 
-                string nodeName = string.Format("attach{0}", attach.Id);
+                string nodeName = Utilities.ToCamelCase(string.Format("attach{0}", attach.Id));
 
                 AttachmentGoExporter attachmentExporter = AttachmentGoExporter.CreateInstance(attach);
                 attachmentExporter.GenerateClass(attach, file, "", nodeName, btClassName);
@@ -318,7 +320,7 @@ namespace PluginBehaviac.Exporters
             {
                 file.WriteLine("{0}// attachments", indent);
 
-                foreach (Behaviac.Design.Attachments.Attachment attach in node.Attachments)
+                foreach (Attachment attach in node.Attachments)
                 {
                     if (!attach.Enable || attach.IsStartCondition)
                     {
@@ -327,23 +329,33 @@ namespace PluginBehaviac.Exporters
 
                     file.WriteLine("{0}{{", indent);
 
-                    string nodeName = string.Format("attach{0}", attach.Id);
+                    string nodeName = Utilities.ToCamelCase(string.Format("attach{0}", attach.Id));
 
                     // export its instance and the properties
                     AttachmentGoExporter attachmentExporter = AttachmentGoExporter.CreateInstance(attach);
                     attachmentExporter.GenerateInstance(attach, file, indent, nodeName, agentType, btClassName);
 
-                    string isPrecondition = attach.IsPrecondition && !attach.IsTransition ? "true" : "false";
-                    string isEffector = attach.IsEffector && !attach.IsTransition ? "true" : "false";
-                    string isTransition = attach.IsTransition ? "true" : "false";
-                    file.WriteLine("{0}\t{1}.Attach({2}, {3}, {4}, {5});", indent, parentName, nodeName, isPrecondition, isEffector, isTransition);
+                    if (attach is Event)
+                    {
+                        file.WriteLine("{0}\t{1}.AddEvent({2})", indent, parentName, nodeName);
+                    }
+                    else if (attach.IsPrecondition)
+                    {
+                        file.WriteLine("{0}\t{1}.AddPrecondition({2})", indent, parentName, nodeName);
+                    }
+                    else if (attach.IsEffector)
+                    {
+                        file.WriteLine("{0}\t{1}.AddEffector({2})", indent, parentName, nodeName);
+                    }
+ /*                   string isTransition = attach.IsTransition ? "true" : "false";
+                    file.WriteLine("{0}\t{1}.AddAttach({2}, {3}, {4}, {5});", indent, parentName, nodeName, isPrecondition, isEffector, isTransition);
 
-                    if (attach is Behaviac.Design.Attachments.Event)
+                    if (attach is Event)
                     {
                         file.WriteLine("{0}\t{1}.SetHasEvents({1}.HasEvents() | ({2} is Event));", indent, parentName, nodeName);
-                    }
+                    }*/
 
-                    file.WriteLine("{0}}}", indent);
+                    file.WriteLine("}");
                 }
             }
         }
@@ -523,7 +535,7 @@ namespace PluginBehaviac.Exporters
                             propNameWidth = prop.BasicName.Length;
                         }
 
-                        string propType = DataGoExporter.GetGeneratedNativeType(prop.Type);
+                        string propType = GoExporter.GetGeneratedNativeType(prop.Type);
                         if (propType.Length > propTypeWidth)
                         {
                             propTypeWidth = propType.Length;
@@ -535,7 +547,7 @@ namespace PluginBehaviac.Exporters
                 {
                     if ((preview || !agent.IsImplemented) && !prop.IsInherited && !prop.IsPar && !prop.IsArrayElement)
                     {
-                        string propType = DataGoExporter.GetGeneratedNativeType(prop.Type);
+                        string propType = GoExporter.GetGeneratedNativeType(prop.Type);
                         file.WriteLine("\t{0,-" + propNameWidth + "} {1,-" + propTypeWidth + "} // {2}", prop.BasicName, propType, prop.BasicDescription);
                     }
                 }
@@ -550,7 +562,7 @@ namespace PluginBehaviac.Exporters
                 {
                     if ((preview || !agent.IsImplemented) && !prop.IsInherited && !prop.IsPar && !prop.IsArrayElement)
                     {
-                        string defaultValue = DataGoExporter.GetGeneratedPropertyDefaultValue(prop);
+                        string defaultValue = GoExporter.GetGeneratedPropertyDefaultValue(prop);
 
                         if (defaultValue != null)
                         {

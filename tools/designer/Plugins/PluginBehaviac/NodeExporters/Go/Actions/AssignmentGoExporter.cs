@@ -67,7 +67,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (b *{0}) Assign(agent bt.Agent) {{", className);
+            stream.WriteLine("func (n *{0}) Assign(agent bt.Agent) {{", className);
 
             if (assignment.Opl != null && assignment.Opr != null)
             {

@@ -11,45 +11,27 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System.IO;
 using Behaviac.Design.Nodes;
-using PluginBehaviac.DataExporters;
 using PluginBehaviac.Nodes;
 
 namespace PluginBehaviac.NodeExporters
 {
     public class ParallelGoExporter : NodeGoExporter
     {
-        protected override bool ShouldGenerateClass(Node node)
+        protected override string GetNodeBehavior(Node node, string btClassName, string nodeName)
         {
-            return node is Parallel;
-        }
-
-        protected override void GenerateConstructor(Node node, StringWriter stream, string indent, string className)
-        {
-            base.GenerateConstructor(node, stream, indent, className);
-
             if (!(node is Parallel parallel))
             {
-                return;
+                return "";
             }
 
-            stream.WriteLine("{0}\tb.FailurePolicy = {1}", indent, GetFailurePolicy(parallel.FailurePolicy));
-            stream.WriteLine("{0}\tb.SuccessPolicy = {1}", indent, GetSuccessPolicy(parallel.SuccessPolicy));
-            stream.WriteLine("{0}\tb.ExitPolicy = {1}", indent, GetExitPolicy(parallel.ExitPolicy));
-            stream.WriteLine("{0}\tb.ChildFinishPolicy = {1}", indent, GetChildFinishPolicy(parallel.ChildFinishPolicy));
-        }
-
-        protected override void GenerateMember(Node node, StringWriter stream, string indent)
-        {
-            base.GenerateMember(node, stream, indent);
-
-            if (!(node is Parallel))
-            {
-                return;
-            }
-
-            stream.WriteLine("\tcomposites.Parallel");
+            return string.Format(
+                "composites.NewParallel(\n\t\t\t{0},\n\t\t\t{1},\n\t\t\t{2},\n\t\t\t{3},\n\t\t)",
+                GetSuccessPolicy(parallel.SuccessPolicy),
+                GetFailurePolicy(parallel.FailurePolicy),
+                GetExitPolicy(parallel.ExitPolicy),
+                GetChildFinishPolicy(parallel.ChildFinishPolicy)
+            );
         }
 
         private string GetFailurePolicy(FailurePolicy policy)

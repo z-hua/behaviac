@@ -185,9 +185,14 @@
     <Compile Include="NodeExporters\Go\Attachments\EffectorGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Attachments\EventGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Attachments\PreconditionGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\TaskGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\WaitforSignalGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\WithPreconditionGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\SelectorLoopGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\IfElseGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\ParallelGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\ReferencedBehaviorGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Composites\SelectorProbabilityGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SelectorStochasticGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SelectorGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SequenceStochasticGoExporter.cs" />
@@ -211,6 +216,7 @@
     <Compile Include="NodeExporters\Go\Decorators\DecoratorCountGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Decorators\DecoratorGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Decorators\DecoratorTimeGoExporter.cs" />
+    <Compile Include="NodeExporters\Go\Decorators\DecoratorWeightGoExporter.cs" />
     <Compile Include="NodeExporters\Go\NodeGoExporter.cs" />
     <Compile Include="NodeExporters\NodeExporter.cs" />
     <Compile Include="Nodes\Actions\Compute.cs" />

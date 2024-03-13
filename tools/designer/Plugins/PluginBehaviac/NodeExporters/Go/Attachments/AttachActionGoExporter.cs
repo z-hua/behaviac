@@ -11,12 +11,8 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using Behaviac.Design;
-using Behaviac.Design.Nodes;
 using Behaviac.Design.Attachments;
 using PluginBehaviac.DataExporters;
 
@@ -33,25 +29,23 @@ namespace PluginBehaviac.NodeExporters
         {
             base.GenerateConstructor(attachment, stream, indent, className);
 
-            AttachAction attach = attachment as AttachAction;
-
-            if (attach == null)
+            if (!(attachment is AttachAction attach))
             {
                 return;
             }
 
-            RightValueCsExporter.GenerateClassConstructor(attachment, attach.Opl, stream, indent, "opl");
+            RightValueGoExporter.GenerateClassConstructor(attachment, attach.Opl, stream, indent, "opl");
 
             if (!attach.IsAction())
             {
                 if (attach.IsCompute() && attach.Opr1 != null)
                 {
-                    RightValueCsExporter.GenerateClassConstructor(attachment, attach.Opr1, stream, indent, "opr1");
+                    RightValueGoExporter.GenerateClassConstructor(attachment, attach.Opr1, stream, indent, "opr1");
                 }
 
                 if (attach.Opr2 != null)
                 {
-                    RightValueCsExporter.GenerateClassConstructor(attachment, attach.Opr2, stream, indent, "opr2");
+                    RightValueGoExporter.GenerateClassConstructor(attachment, attach.Opr2, stream, indent, "opr2");
                 }
             }
         }
@@ -60,50 +54,45 @@ namespace PluginBehaviac.NodeExporters
         {
             base.GenerateMember(attachment, stream, indent);
 
-            AttachAction attach = attachment as AttachAction;
-
-            if (attach == null)
+            if (!(attachment is AttachAction attach))
             {
                 return;
             }
 
-            RightValueCsExporter.GenerateClassMember(attach.Opl, stream, indent, "opl");
+            RightValueGoExporter.GenerateClassMember(attach.Opl, stream, indent, "opl");
 
             if (!attach.IsAction())
             {
                 if (attach.IsCompute() && attach.Opr1 != null)
                 {
-                    RightValueCsExporter.GenerateClassMember(attach.Opr1, stream, indent, "opr1");
+                    RightValueGoExporter.GenerateClassMember(attach.Opr1, stream, indent, "opr1");
                 }
 
                 if (attach.Opr2 != null)
                 {
-                    RightValueCsExporter.GenerateClassMember(attach.Opr2, stream, indent, "opr2");
+                    RightValueGoExporter.GenerateClassMember(attach.Opr2, stream, indent, "opr2");
                 }
             }
         }
 
-        protected override void GenerateMethod(Behaviac.Design.Attachments.Attachment attachment, StringWriter stream, string indent)
+        protected override void GenerateMethod(Attachment attachment, StringWriter stream, string indent, string className)
         {
-            base.GenerateMethod(attachment, stream, indent);
+            base.GenerateMethod(attachment, stream, indent, className);
 
-            AttachAction attach = attachment as AttachAction;
-
-            if (attach == null)
+            if (!(attachment is AttachAction attach))
             {
                 return;
             }
 
-            stream.WriteLine("{0}\t\tprotected override EBTStatus update_impl(behaviac.Agent pAgent, behaviac.EBTStatus childStatus)", indent);
-            stream.WriteLine("{0}\t\t{{", indent);
-            stream.WriteLine("{0}\t\t\tEBTStatus result = EBTStatus.BT_SUCCESS;", indent);
+            stream.WriteLine("func (n *{0}) Update(agent bt.Agent, tree *bt.Tree) bt.Status {{", className);
+            stream.WriteLine("\tresult := bt.Success", indent);
 
             if (attach.IsAction())
             {
-                string method = MethodCsExporter.GenerateCode(attachment, attach.Opl.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "opl");
+                string method = MethodGoExporter.GenerateCode(attachment, attach.Opl.Method, stream, indent + "\t", string.Empty, string.Empty, "opl");
 
-                stream.WriteLine("{0}\t\t\t{1};", indent, method);
-                MethodCsExporter.PostGenerateCode(attach.Opl.Method, stream, indent + "\t\t\t", string.Empty, string.Empty, "opl");
+                stream.WriteLine("{0}\t{1}", indent, method);
+                MethodGoExporter.PostGenerateCode(attach.Opl.Method, stream, indent + "\t", string.Empty, string.Empty, "opl");
             }
             else if (attach.IsAssign())
             {
@@ -113,84 +102,58 @@ namespace PluginBehaviac.NodeExporters
 
                     if (prop != null)
                     {
-                        RightValueCsExporter.GenerateCode(attachment, attach.Opr2, stream, indent + "\t\t\t", attach.Opr2.NativeType.Replace("::", "."), "opr2", "opr2");
+                        RightValueGoExporter.GenerateCode(attachment, attach.Opr2, stream, indent + "\t", attach.Opr2.NativeType.Replace("::", "."), "opr2", "opr2");
 
-                        string property = PropertyCsExporter.GetProperty(attachment, prop, attach.Opl.Var.ArrayIndexElement, stream, indent + "\t\t\t", "opl", "attach");
-                        string propName = prop.BasicName.Replace("[]", "");
+                        string propBasicName = Utilities.ToPascalCase(prop.BasicName.Replace("[]", ""));
 
-                        if (prop.IsArrayElement && attach.Opl.Var.ArrayIndexElement != null)
-                        {
-                            ParameterCsExporter.GenerateCode(attachment, attach.Opl.Var.ArrayIndexElement, stream, indent + "\t\t\t", "int", "opl_index", "attach_opl");
-                            property = string.Format("({0})[opl_index]", property);
-                        }
-
-                        string propBasicName = prop.BasicName.Replace("[]", "");
-
-                        if (!prop.IsArrayElement && (!prop.IsPublic || prop.IsPar || prop.IsCustomized))
-                        {
-                            uint id = Behaviac.Design.CRC32.CalcCRC(propBasicName);
-                            string oplAgentName = PropertyCsExporter.GetGenerateAgentName(prop, "opl", "attach");
-
-                            stream.WriteLine("{0}\t\t\t{1}.SetVariable(\"{2}\", {3}u, opr2);", indent, oplAgentName, propBasicName, id);
-                        }
-                        else
-                        {
-                            if (prop.IsPublic)
-                            {
-                                stream.WriteLine("{0}\t\t\t{1} = opr2;", indent, property);
-                            }
-                            else
-                            {
-                                string agentName = PropertyCsExporter.GetGenerateAgentName(prop, "opr2", "opr2");
-                                stream.WriteLine("{0}\t\t\tAgentMetaVisitor.SetProperty({1}, \"{2}\", opr2);", indent, agentName, propBasicName);
-                            }
-                        }
+                        stream.WriteLine("\t{0} = opr2", propBasicName);
 
                         if (attach.Opr2.IsMethod)
                         {
-                            RightValueCsExporter.PostGenerateCode(attach.Opr2, stream, indent + "\t\t\t", attach.Opr2.NativeType.Replace("::", "."), "opr2", string.Empty);
+                            RightValueGoExporter.PostGenerateCode(attach.Opr2, stream, indent + "\t", attach.Opr2.NativeType.Replace("::", "."), "opr2", string.Empty);
                         }
                     }
                 }
             }
             else if (attach.IsCompare())
             {
-                ConditionCsExporter.GenerateOperand(attachment, stream, indent + "\t\t\t", attach.Opl, "opl", "");
-                ConditionCsExporter.GenerateOperand(attachment, stream, indent + "\t\t\t", attach.Opr2, "opr2", "");
+                ConditionGoExporter.GenerateOperand(attachment, stream, indent + "\t", attach.Opl, "opl", "");
+                ConditionGoExporter.GenerateOperand(attachment, stream, indent + "\t", attach.Opr2, "opr2", "");
 
                 switch (attach.Operator)
                 {
                     case OperatorTypes.Equal:
-                        stream.WriteLine("{0}\t\t\tbool op = (opl == opr2);", indent);
+                        stream.WriteLine("{0}\top := opl == opr2", indent);
                         break;
 
                     case OperatorTypes.NotEqual:
-                        stream.WriteLine("{0}\t\t\tbool op = (opl != opr2);", indent);
+                        stream.WriteLine("{0}\top := opl != opr2", indent);
                         break;
 
                     case OperatorTypes.Greater:
-                        stream.WriteLine("{0}\t\t\tbool op = (opl > opr2);", indent);
+                        stream.WriteLine("{0}\top := opl > opr2", indent);
                         break;
 
                     case OperatorTypes.GreaterEqual:
-                        stream.WriteLine("{0}\t\t\tbool op = (opl >= opr2);", indent);
+                        stream.WriteLine("{0}\top := opl >= opr2", indent);
                         break;
 
                     case OperatorTypes.Less:
-                        stream.WriteLine("{0}\t\t\tbool op = (opl < opr2);", indent);
+                        stream.WriteLine("{0}\top := opl < opr2", indent);
                         break;
 
                     case OperatorTypes.LessEqual:
-                        stream.WriteLine("{0}\t\t\tbool op = (opl <= opr2);", indent);
+                        stream.WriteLine("{0}\top := opl <= opr2", indent);
                         break;
 
                     default:
-                        stream.WriteLine("{0}\t\t\tbool op = false;", indent);
+                        stream.WriteLine("{0}\top := false", indent);
                         break;
                 }
 
-                stream.WriteLine("{0}\t\t\tif (!op)", indent);
-                stream.WriteLine("{0}\t\t\t\tresult = EBTStatus.BT_FAILURE;", indent);
+                stream.WriteLine("{0}\tif !op {{", indent);
+                stream.WriteLine("{0}\t\tresult = bt.Failure", indent);
+                stream.WriteLine("\t}");
             }
             else if (attach.IsCompute())
             {
@@ -203,8 +166,8 @@ namespace PluginBehaviac.NodeExporters
                         string typeName = Plugin.GetNativeTypeName(attach.Opr1.ValueType);
                         typeName = typeName.Replace("::", ".");
 
-                        RightValueCsExporter.GenerateCode(attachment, attach.Opr1, stream, indent + "\t\t\t", typeName, "opr1", "opr1");
-                        RightValueCsExporter.GenerateCode(attachment, attach.Opr2, stream, indent + "\t\t\t", typeName, "opr2", "opr2");
+                        RightValueGoExporter.GenerateCode(attachment, attach.Opr1, stream, indent + "\t", typeName, "opr1", "opr1");
+                        RightValueGoExporter.GenerateCode(attachment, attach.Opr2, stream, indent + "\t", typeName, "opr2", "opr2");
 
                         string oprStr = string.Empty;
 
@@ -231,50 +194,27 @@ namespace PluginBehaviac.NodeExporters
                                 break;
                         }
 
-                        oprStr = string.Format("({0})({1})", typeName, oprStr);
+                        oprStr = string.Format("{0}({1})", typeName, oprStr);
 
-                        string property = PropertyCsExporter.GetProperty(attachment, prop, attach.Opl.Var.ArrayIndexElement, stream, indent + "\t\t\t", "opl", "attach");
-                        string propName = prop.BasicName.Replace("[]", "");
+                        string property = PropertyGoExporter.GetProperty(attachment, prop, attach.Opl.Var.ArrayIndexElement, stream, indent + "\t", "opl", "attach");
 
-                        if (prop.IsArrayElement && attach.Opl.Var.ArrayIndexElement != null)
-                        {
-                            ParameterCsExporter.GenerateCode(attachment, attach.Opl.Var.ArrayIndexElement, stream, indent + "\t\t\t", "int", "opl_index", "attach_opl");
-                            property = string.Format("({0})[opl_index]", property);
-                        }
-
-                        string propBasicName = prop.BasicName.Replace("[]", "");
-                        string agentName = PropertyCsExporter.GetGenerateAgentName(prop, "opl", "attach");
-
-                        if (!prop.IsArrayElement && (prop.IsPar || prop.IsCustomized))
-                        {
-                            uint id = Behaviac.Design.CRC32.CalcCRC(propBasicName);
-
-                            stream.WriteLine("{0}\t\t\t{1}.SetVariable(\"{2}\", {3}u, {4});", indent, agentName, propBasicName, id, oprStr);
-                        }
-                        else if (prop.IsPublic)
-                        {
-                            stream.WriteLine("{0}\t\t\t{1} = {2};", indent, property, oprStr);
-                        }
-                        else
-                        {
-                            stream.WriteLine("{0}\t\t\tAgentMetaVisitor.SetProperty({1}, \"{2}\", {3});", indent, agentName, propBasicName, oprStr);
-                        }
+                        stream.WriteLine("\t{0} = {1}", property, oprStr);
 
                         if (attach.Opr1.IsMethod)
                         {
-                            RightValueCsExporter.PostGenerateCode(attach.Opr1, stream, indent + "\t\t\t", typeName, "opr1", string.Empty);
+                            RightValueGoExporter.PostGenerateCode(attach.Opr1, stream, indent + "\t", typeName, "opr1", string.Empty);
                         }
 
                         if (attach.Opr2.IsMethod)
                         {
-                            RightValueCsExporter.PostGenerateCode(attach.Opr2, stream, indent + "\t\t\t", typeName, "opr2", string.Empty);
+                            RightValueGoExporter.PostGenerateCode(attach.Opr2, stream, indent + "\t", typeName, "opr2", string.Empty);
                         }
                     }
                 }
             }
 
-            stream.WriteLine("{0}\t\t\treturn result;", indent);
-            stream.WriteLine("{0}\t\t}}", indent);
+            stream.WriteLine("{0}\treturn result", indent);
+            stream.WriteLine("}");
         }
     }
 }

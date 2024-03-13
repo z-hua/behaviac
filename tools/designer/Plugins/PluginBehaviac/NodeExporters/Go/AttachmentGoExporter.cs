@@ -12,11 +12,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Reflection;
 using Behaviac.Design.Attachments;
+using Behaviac.Design;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -43,7 +42,7 @@ namespace PluginBehaviac.NodeExporters
             {
                 while (attachmentType != typeof(Attachment))
                 {
-                    string attachmentExporter = "PluginBehaviac.NodeExporters." + attachmentType.Name + "CsExporter";
+                    string attachmentExporter = "PluginBehaviac.NodeExporters." + attachmentType.Name + "GoExporter";
                     Type exporterType = Type.GetType(attachmentExporter);
 
                     if (exporterType != null)
@@ -54,7 +53,7 @@ namespace PluginBehaviac.NodeExporters
                     foreach (Assembly assembly in Plugin.GetLoadedPlugins())
                     {
                         string filename = Path.GetFileNameWithoutExtension(assembly.Location);
-                        attachmentExporter = filename + ".NodeExporters." + attachmentType.Name + "CsExporter";
+                        attachmentExporter = filename + ".NodeExporters." + attachmentType.Name + "GoExporter";
                         exporterType = assembly.GetType(attachmentExporter);
 
                         if (exporterType != null)
@@ -76,21 +75,19 @@ namespace PluginBehaviac.NodeExporters
             {
                 string className = GetGeneratedClassName(attachment, btClassName, nodeName);
 
-                stream.WriteLine("{0}\t[behaviac.GeneratedTypeMetaInfo()]", indent);
-                stream.WriteLine("{0}\tclass {1} : behaviac.{2}\r\n{0}\t{{", indent, className, attachment.ExportClass);
+                stream.WriteLine("type {0} struct {{", className);
+                GenerateMember(attachment, stream, indent);
+                stream.WriteLine("}");
+                stream.WriteLine();
 
-                stream.WriteLine("{0}\t\tpublic {1}()", indent, className);
-                stream.WriteLine("{0}\t\t{{", indent);
+                stream.WriteLine("func New{0}() *{0} {{", className);
 
                 GenerateConstructor(attachment, stream, indent, className);
 
-                stream.WriteLine("{0}\t\t}}", indent);
+                stream.WriteLine("}");
+                stream.WriteLine();
 
-                GenerateMethod(attachment, stream, indent);
-
-                GenerateMember(attachment, stream, indent);
-
-                stream.WriteLine("{0}\t}}\r\n", indent);
+                GenerateMethod(attachment, stream, indent, className);
             }
         }
 
@@ -99,24 +96,21 @@ namespace PluginBehaviac.NodeExporters
             string className = GetGeneratedClassName(attachment, btClassName, nodeName);
 
             // create a new instance of the node
-            stream.WriteLine("{0}\t{1} {2} = new {1}();", indent, className, nodeName);
-
-            // set its basic properties
-            stream.WriteLine("{0}\t{1}.SetClassNameString(\"{2}\");", indent, nodeName, attachment.ExportClass);
-            stream.WriteLine("{0}\t{1}.SetId({2});", indent, nodeName, attachment.Id);
-            stream.WriteLine("#if !BEHAVIAC_RELEASE");
-            stream.WriteLine("{0}\t{1}.SetAgentType(\"{2}\");", indent, nodeName, agentType.Replace("::", "."));
-            stream.WriteLine("#endif");
+            stream.WriteLine("{0}\t{1} := New{2}()", indent, nodeName, className);
         }
 
         protected string GetGeneratedClassName(Attachment attachment, string btClassName, string nodeName)
         {
+            string name;
             if (ShouldGenerateClass())
             {
-                return string.Format("{0}_{1}_{2}", attachment.ExportClass, btClassName, nodeName);
+                name = string.Format("{0}_{1}_{2}", attachment.ExportClass, btClassName, nodeName);
             }
-
-            return attachment.ExportClass;
+            else
+            {
+                name = attachment.ExportClass;
+            }
+            return Utilities.ToPascalCase(name);
         }
 
         protected virtual bool ShouldGenerateClass()
@@ -132,7 +126,7 @@ namespace PluginBehaviac.NodeExporters
         {
         }
 
-        protected virtual void GenerateMethod(Attachment attachment, StringWriter stream, string indent)
+        protected virtual void GenerateMethod(Attachment attachment, StringWriter stream, string indent, string className)
         {
         }
     }

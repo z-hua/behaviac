@@ -58,7 +58,7 @@ namespace PluginBehaviac.DataExporters
                         {
                             string retStr = DataGoExporter.GenerateCode(obj, defaultObj, stream, string.Empty, method.Params[i].NativeType, string.Empty, string.Empty);
 
-                            stream.WriteLine("\tb.{0} = {1}", param, retStr);
+                            stream.WriteLine("\tn.{0} = {1}", param, retStr);
                         }
                     }
                 }
@@ -72,7 +72,7 @@ namespace PluginBehaviac.DataExporters
             for (int i = 0; i < method.Params.Count; ++i)
             {
                 // const value
-                if (!method.Params[i].IsProperty && !method.Params[i].IsLocalVar && method.Params[i].Value != null)
+                if (/*!method.Params[i].IsProperty && !method.Params[i].IsLocalVar && */method.Params[i].Value != null)
                 {
                     string param = getParamName(var, "", i);
                     string nativeType = GoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
@@ -89,8 +89,8 @@ namespace PluginBehaviac.DataExporters
 
             for (int i = 0; i < method.Params.Count; ++i)
             {
-                string nativeType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
-                string param = "b." + getParamName(var, caller, i);
+                string nativeType = GoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
+                string param = "n." + getParamName(var, caller, i);
 
                 if (method.Params[i].IsProperty || method.Params[i].IsLocalVar) // property
                 {
@@ -103,9 +103,7 @@ namespace PluginBehaviac.DataExporters
                         param = ParameterGoExporter.GenerateCode(defaultObj, method.Params[i], stream, indent, nativeType, "", param);
                     }
 
-                    VariableDef v = method.Params[i].Value as VariableDef;
-
-                    if (v != null && v.ArrayIndexElement != null)
+                    if (method.Params[i].Value is VariableDef v && v.ArrayIndexElement != null)
                     {
                         PropertyDef prop = method.Params[i].Property;
 
@@ -136,10 +134,10 @@ namespace PluginBehaviac.DataExporters
                     {
                         Type type = obj.GetType();
 
-                        if (Plugin.IsCustomClassType(type) && !DesignerStruct.IsPureConstDatum(obj, method, method.Params[i].Name))
+                        if (Behaviac.Design.Plugin.IsCustomClassType(type) && !DesignerStruct.IsPureConstDatum(obj, method, method.Params[i].Name))
                         {
                             string paramName = getParamName(var, caller, i);
-                            string paramType = DataGoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
+                            string paramType = GoExporter.GetGeneratedNativeType(method.Params[i].NativeType);
 
                             StructGoExporter.GenerateCode(obj, defaultObj, stream, indent, paramName, paramType, method, method.Params[i].Name);
                         }
