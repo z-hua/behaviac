@@ -52,7 +52,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (decoratorWeight.Weight != null)
             {
-                stream.WriteLine("func (n *{0}) GetWeight(agent bt.Agent) int {{", className);
+                stream.WriteLine("func (n *{0}) GetWeight(agent bt.IAgent) int {{", className);
 
                 string retStr = VariableGoExporter.GenerateCode(node, decoratorWeight.Weight, false, stream, indent + "\t\t\t", string.Empty, string.Empty, string.Empty);
 

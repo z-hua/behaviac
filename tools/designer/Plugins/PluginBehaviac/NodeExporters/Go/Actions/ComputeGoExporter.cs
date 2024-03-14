@@ -77,7 +77,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) Calculate(agent bt.Agent) {{", className);
+            stream.WriteLine("func (n *{0}) Calculate(agent bt.IAgent) {{", className);
 
             if (compute.Opl != null && compute.Opr1 != null && compute.Opr2 != null)
             {

@@ -37,7 +37,7 @@ namespace PluginBehaviac.DataExporters
             }
 
             string propBasicName = property.BasicName.Replace("[]", "");
-            string retStr = string.Format("tree.GetLocal(\"{0}\").({1})", propBasicName, typename);
+            string retStr = string.Format("agent.GetLocal(\"{0}\").({1})", propBasicName, typename);
 
             if (!string.IsNullOrEmpty(var))
             {

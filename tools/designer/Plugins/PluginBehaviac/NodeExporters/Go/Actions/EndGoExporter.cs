@@ -70,7 +70,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (end.EndStatus != null)
             {
-                stream.WriteLine("func (n *{0}) GetStatus(agent bt.Agent) bt.Status {{", className);
+                stream.WriteLine("func (n *{0}) GetStatus(agent bt.IAgent) bt.Status {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, end.EndStatus, stream, indent + "\t", string.Empty, string.Empty, "EndStatus");
 

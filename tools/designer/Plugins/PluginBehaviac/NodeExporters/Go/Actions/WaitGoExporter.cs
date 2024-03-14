@@ -69,7 +69,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (wait.Time != null)
             {
-                stream.WriteLine("func (n *{0}) GetTime(agent bt.Agent) int {{", className);
+                stream.WriteLine("func (n *{0}) GetTime(agent bt.IAgent) int {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, wait.Time, stream, indent + "\t\t\t", string.Empty, string.Empty, "Time");
 

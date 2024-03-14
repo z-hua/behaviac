@@ -68,7 +68,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (decoratorTime.Time != null)
             {
-                stream.WriteLine("func (n *{0}) GetTime(agent bt.Agent) float32 {{", className);
+                stream.WriteLine("func (n *{0}) GetTime(agent bt.IAgent) float32 {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, decoratorTime.Time, stream, indent + "\t", string.Empty, string.Empty, "Time");
 

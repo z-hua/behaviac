@@ -18,7 +18,6 @@ using Behaviac.Design;
 using Behaviac.Design.Nodes;
 using Behaviac.Design.Attributes;
 using PluginBehaviac.Properties;
-using PluginBehaviac.DataExporters;
 using PluginBehaviac.NodeExporters;
 using Behaviac.Design.Attachments;
 
@@ -195,7 +194,7 @@ namespace PluginBehaviac.Exporters
             file.WriteLine("// Source file: {0}", filename);
             file.WriteLine();
 
-            string btClassName = getValidFilename(filename);
+            string btClassName = Utilities.ToPascalCase(getValidFilename(filename));
             string agentType = behavior.AgentType.Name;
             string treeName = Utilities.ToPascalCase(((Node)behavior).Label);
 
@@ -224,7 +223,7 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine("\t\t\tbt.SetDescriptors(\"{0}\");", DesignerPropertyUtility.RetrieveExportValue(((Behavior)behavior).DescriptorRefs));
             }
 
-            ExportPars(file, agentType, "t", (Node)behavior, "");
+            //ExportPars(file, agentType, "t", (Node)behavior, "");
 
             // export its attachments
             ExportAttachment(file, btClassName, agentType, "t", (Node)behavior, "\t\t\t");
@@ -407,7 +406,7 @@ namespace PluginBehaviac.Exporters
             NodeGoExporter nodeExporter = NodeGoExporter.CreateInstance(node);
             nodeExporter.GenerateInstance(node, file, indent, nodeName, agentType, btClassName);
             
-            ExportPars(file, agentType, nodeName, node, indent);
+            //ExportPars(file, agentType, nodeName, node, indent);
 
             ExportAttachment(file, btClassName, agentType, nodeName, node, indent + "\t");
 
@@ -520,8 +519,12 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine("package types");
                 file.WriteLine();
 
+                string structName = Utilities.ToPascalCase(agent.BasicName);
+
                 // 生成结构体
-                file.WriteLine("type {0} struct {{", agent.BasicName);
+                file.WriteLine("type {0} struct {{", structName);
+                file.WriteLine("\tbt.Agent");
+
                 IList<PropertyDef> properties = agent.GetProperties(true);
 
                 int propNameWidth = 0;
@@ -548,7 +551,10 @@ namespace PluginBehaviac.Exporters
                     if ((preview || !agent.IsImplemented) && !prop.IsInherited && !prop.IsPar && !prop.IsArrayElement)
                     {
                         string propType = GoExporter.GetGeneratedNativeType(prop.Type);
-                        file.WriteLine("\t{0,-" + propNameWidth + "} {1,-" + propTypeWidth + "} // {2}", prop.BasicName, propType, prop.BasicDescription);
+                        file.WriteLine(
+                            "\t{0,-" + propNameWidth + "} {1,-" + propTypeWidth + "} // {2}", 
+                            Utilities.ToPascalCase(prop.BasicName), propType, prop.BasicDescription
+                        );
                     }
                 }
 
@@ -556,8 +562,8 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine();
 
                 // 生成 new 函数
-                file.WriteLine("func New{0}() *{0} {{", agent.BasicName);
-                file.WriteLine("\t_o := new({0})", agent.BasicName);
+                file.WriteLine("func New{0}() *{0} {{", structName);
+                file.WriteLine("\t_o := new({0})", structName);
                 foreach (PropertyDef prop in properties)
                 {
                     if ((preview || !agent.IsImplemented) && !prop.IsInherited && !prop.IsPar && !prop.IsArrayElement)
@@ -566,7 +572,7 @@ namespace PluginBehaviac.Exporters
 
                         if (defaultValue != null)
                         {
-                            file.WriteLine("\t_o.{0} = {1}", prop.BasicName, defaultValue);
+                            file.WriteLine("\t_o.{0} = {1}", Utilities.ToPascalCase(prop.BasicName), defaultValue);
                         }
                     }
                 }
@@ -590,23 +596,25 @@ namespace PluginBehaviac.Exporters
                                 allParams += ", ";
                             }
 
-                            string paramType = DataGoExporter.GetGeneratedNativeType(param.NativeType);
+                            string paramType = GoExporter.GetGeneratedNativeType(param.NativeType);
 
-                            allParams += param.Name + " " + paramType;
+                            allParams += Utilities.ToCamelCase(param.Name) + " " + paramType;
                         }
 
-                        string returnType = DataGoExporter.GetGeneratedNativeType(method.ReturnType);
-                        string returnValue = DataGoExporter.GetGeneratedDefaultValue(method.ReturnType, returnType);
+                        string returnType = GoExporter.GetGeneratedNativeType(method.ReturnType);
+                        string returnValue = GoExporter.GetGeneratedDefaultValue(method.ReturnType, returnType);
 
                         ExportMethodComment(file, "\t" + indent);
 
+                        string methodName = Utilities.ToPascalCase(method.BasicName);
+
                         if (returnType == "void")
                         {
-                            file.WriteLine("func (_o *{0}) {1}({2}) {{", agent.BasicName, method.BasicName, allParams);
+                            file.WriteLine("func (_o *{0}) {1}({2}) {{", structName, methodName, allParams);
                         }
                         else
                         {
-                            file.WriteLine("func (_o *{0}) {1}({2}) {3} {{", agent.BasicName, method.BasicName, allParams, returnType);
+                            file.WriteLine("func (_o *{0}) {1}({2}) {3} {{", structName, methodName, allParams, returnType);
                         }
                         
 
@@ -729,8 +737,10 @@ namespace PluginBehaviac.Exporters
             {
                 enumfile.WriteLine();
 
+                string enumName = Utilities.ToPascalCase(enumType.Name);
+
                 enumfile.WriteLine("// {0}", enumType.Description);
-                enumfile.WriteLine("type {0} int", enumType.Name);
+                enumfile.WriteLine("type {0} int", enumName);
                 enumfile.WriteLine("const (");
 
                 int fieldWidth = 0;
@@ -753,7 +763,10 @@ namespace PluginBehaviac.Exporters
                 {
                     EnumType.EnumMemberType member = enumType.Members[m];
 
-                    enumfile.WriteLine("\t{0,-" + fieldWidth + "} {1} = {2,-" + valueWidth + "} // {3}", member.Name, enumType.Name, member.Value, member.DisplayName);
+                    enumfile.WriteLine(
+                        "\t{0,-" + fieldWidth + "} {1} = {2,-" + valueWidth + "} // {3}",
+                        Utilities.ToPascalCase(member.Name), enumName, member.Value, member.DisplayName
+                    );
                 }
 
                 enumfile.WriteLine(")");
@@ -799,11 +812,12 @@ namespace PluginBehaviac.Exporters
                 structfile.WriteLine("package types");
                 structfile.WriteLine();
             }
-
             structfile.WriteLine();
 
+            string structName = Utilities.ToPascalCase(structType.Name);
+
             structfile.WriteLine("// {0}", structType.Description);
-            structfile.WriteLine("type {0} struct {{", structType.Name);
+            structfile.WriteLine("type {0} struct {{", structName);
 
             if (!string.IsNullOrEmpty(structType.BaseName))
             {
@@ -819,7 +833,7 @@ namespace PluginBehaviac.Exporters
                 {
                     nameWidth = member.BasicName.Length;
                 }
-                string typeStr = DataGoExporter.GetGeneratedNativeType(member.NativeType);
+                string typeStr = GoExporter.GetGeneratedNativeType(member.NativeType);
                 if (typeStr.Length > typeWidth)
                 {
                     typeWidth = typeStr.Length;
@@ -830,7 +844,10 @@ namespace PluginBehaviac.Exporters
                 PropertyDef member = structType.Properties[m];
                 if (!member.IsInherited)
                 {
-                    structfile.WriteLine("\t{0,-" + nameWidth + "} {1,-" + typeWidth + "} // {2}", member.BasicName, DataGoExporter.GetGeneratedNativeType(member.NativeType), member.BasicDescription);
+                    structfile.WriteLine(
+                        "\t{0,-" + nameWidth + "} {1,-" + typeWidth + "} // {2}", 
+                        Utilities.ToPascalCase(member.BasicName), GoExporter.GetGeneratedNativeType(member.NativeType), member.BasicDescription
+                    );
                 }
             }
 

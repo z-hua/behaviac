@@ -26,9 +26,8 @@ namespace PluginBehaviac.NodeExporters
             }
 
             return string.Format(
-                "composites.NewParallel(\n\t\t\t{0},\n\t\t\t{1},\n\t\t\t{2},\n\t\t\t{3},\n\t\t)",
+                "composites.NewParallel(\n\t\t\t{0},\n\t\t\t{1},\n\t\t\t{2})",
                 GetSuccessPolicy(parallel.SuccessPolicy),
-                GetFailurePolicy(parallel.FailurePolicy),
                 GetExitPolicy(parallel.ExitPolicy),
                 GetChildFinishPolicy(parallel.ChildFinishPolicy)
             );

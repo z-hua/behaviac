@@ -89,7 +89,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) Execute(agent bt.Agent, tree *bt.Tree) bt.Status {{", className);
+            stream.WriteLine("func (n *{0}) Execute(agent bt.IAgent) bt.Status {{", className);
 
             string resultStatus = getResultOptionStr(action.ResultOption);
 

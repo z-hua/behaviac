@@ -52,7 +52,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (pReferencedBehavior.ReferenceBehavior != null)
             {
-                stream.WriteLine("func (n *{0}) GetSubtree(agent bt.Agent) string {{", className);
+                stream.WriteLine("func (n *{0}) GetSubtree(agent bt.IAgent) string {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, pReferencedBehavior.ReferenceBehavior, stream, indent + "\t", string.Empty, string.Empty, "Behavior");
 

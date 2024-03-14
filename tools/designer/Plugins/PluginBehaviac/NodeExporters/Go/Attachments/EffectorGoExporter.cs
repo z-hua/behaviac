@@ -21,7 +21,7 @@ namespace PluginBehaviac.NodeExporters
     {
         protected override void GenerateMember(Attachment attachment, StringWriter stream, string indent)
         {
-            stream.WriteLine("\tbt.Effector");
+            stream.WriteLine("\tattachments.Effector");
 
             base.GenerateMember(attachment, stream, indent);
         }
