@@ -36,6 +36,8 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
+            stream.WriteLine("\tn.Assign= n.DoAssign");
+
             if (assignment.Opr != null)
             {
                 RightValueGoExporter.GenerateClassConstructor(node, assignment.Opr, stream, indent, "opr");
@@ -51,7 +53,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tperformers.Assignment");
+            stream.WriteLine("\tactions.Assignment");
 
             if (assignment.Opr != null)
             {
@@ -68,7 +70,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) Assign(agent bt.IAgent) {{", className);
+            stream.WriteLine("func (n *{0}) DoAssign(agent bt.IAgent) {{", className);
 
             if (assignment.Opl != null && assignment.Opr != null)
             {
@@ -125,7 +127,7 @@ namespace PluginBehaviac.NodeExporters
 
         public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
         {
-            ImportPerformer(stream, imported);
+            ImportAction(stream, imported);
         }
     }
 }

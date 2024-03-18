@@ -52,7 +52,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tperformers.End");
+            stream.WriteLine("\tactions.End");
 
             if (end.EndStatus != null)
             {
@@ -82,7 +82,7 @@ namespace PluginBehaviac.NodeExporters
 
         public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
         {
-            ImportPerformer(stream, imported);
+            ImportAction(stream, imported);
         }
     }
 }

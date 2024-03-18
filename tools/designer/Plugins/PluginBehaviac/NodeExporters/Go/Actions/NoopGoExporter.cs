@@ -21,12 +21,12 @@ namespace PluginBehaviac.NodeExporters
     {
         protected override string GetNodeBehavior(Node node, string btClassName, string nodeName)
         {
-            return "performers.NewNoop()";
+            return "actions.NewNoop()";
         }
 
         public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
         {
-            ImportPerformer(stream, imported);
+            ImportAction(stream, imported);
         }
     }
 }

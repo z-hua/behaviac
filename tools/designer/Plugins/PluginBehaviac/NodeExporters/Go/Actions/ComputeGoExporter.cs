@@ -56,7 +56,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tperformers.Compute");
+            stream.WriteLine("\tactions.Compute");
 
             if (compute.Opr1 != null)
             {
@@ -152,7 +152,7 @@ namespace PluginBehaviac.NodeExporters
 
         public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
         {
-            ImportPerformer(stream, imported);
+            ImportAction(stream, imported);
         }
     }
 }

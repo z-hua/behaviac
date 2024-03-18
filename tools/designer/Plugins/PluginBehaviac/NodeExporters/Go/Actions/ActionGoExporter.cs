@@ -58,7 +58,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tn.ExecuteFn = n.Execute");
+            stream.WriteLine("\tn.Execute= n.DoExecute");
 
             if (action.Method != null && !isNullMethod(action.Method))
             {
@@ -75,7 +75,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tperformers.Action");
+            stream.WriteLine("\tactions.Action");
 
             if (action.Method != null && !isNullMethod(action.Method))
             {
@@ -92,7 +92,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) Execute(agent bt.IAgent) bt.Status {{", className);
+            stream.WriteLine("func (n *{0}) DoExecute(agent bt.IAgent) bt.Status {{", className);
 
             string resultStatus = getResultOptionStr(action.ResultOption);
 
@@ -152,7 +152,7 @@ namespace PluginBehaviac.NodeExporters
 
         public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
         {
-            ImportPerformer(stream, imported);
+            ImportAction(stream, imported);
         }
     }
 }

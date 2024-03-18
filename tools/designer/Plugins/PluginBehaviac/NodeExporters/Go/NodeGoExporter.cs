@@ -143,9 +143,9 @@ namespace PluginBehaviac.NodeExporters
 
         private string gitAddress = "gitee.com/z-hua/go_ai/bt/";
 
-        protected void ImportPerformer(StringWriter stream, Dictionary<string, bool> imported)
+        protected void ImportAction(StringWriter stream, Dictionary<string, bool> imported)
         {
-            string import= "performers";
+            string import= "actions";
             if (!imported.ContainsKey(import))
             {
                 imported[import]= true;

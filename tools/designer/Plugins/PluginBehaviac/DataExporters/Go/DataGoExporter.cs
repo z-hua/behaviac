@@ -50,7 +50,7 @@ namespace PluginBehaviac.DataExporters
                 else if (obj is ParInfo)
                 {
                     ParInfo par = obj as ParInfo;
-                    retStr = ParInfoGoExporter.GenerateCode(par, false, stream, indent, typename, var, caller);
+                    retStr = ParInfoGoExporter.GenerateCode(defaultObj, par, false, stream, indent, typename, var, caller);
                 }
                 else if (obj is PropertyDef)
                 {

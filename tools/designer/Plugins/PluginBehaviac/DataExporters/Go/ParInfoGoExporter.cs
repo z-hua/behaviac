@@ -18,7 +18,7 @@ namespace PluginBehaviac.DataExporters
 {
     public class ParInfoGoExporter
     {
-        public static string GenerateCode(PropertyDef property, bool isRefParam, StringWriter stream, string indent, string typename, string var, string caller)
+        public static string GenerateCode(DefaultObject defaultObj, PropertyDef property, bool isRefParam, StringWriter stream, string indent, string typename, string var, string caller)
         {
             if (string.IsNullOrEmpty(typename))
             {
@@ -38,6 +38,20 @@ namespace PluginBehaviac.DataExporters
 
             string propBasicName = property.BasicName.Replace("[]", "");
             string retStr = string.Format("agent.GetLocal(\"{0}\").({1})", propBasicName, typename);
+
+            if (property.IsArrayElement)
+            {
+                string index = "";
+                if (property.Variable.IsConst)
+                {
+                    index = property.Variable.Value.ToString();
+                }
+                else if (property.Variable.ArrayIndexElement != null)
+                {
+                    index = property.Variable.ArrayIndexElement.Value.ToString();
+                }
+                retStr += string.Format("[{0}]", index);
+            }
 
             if (!string.IsNullOrEmpty(var))
             {

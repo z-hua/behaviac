@@ -54,7 +54,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tperformers.WaitFrames");
+            stream.WriteLine("\tactions.WaitFrames");
 
             if (waitFrames.Frames != null)
             {
@@ -84,7 +84,7 @@ namespace PluginBehaviac.NodeExporters
 
         public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
         {
-            ImportPerformer(stream, imported);
+            ImportAction(stream, imported);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace PluginBehaviac.DataExporters
         {
             if (param.Value is ParInfo par)
             {
-                return ParInfoGoExporter.GenerateCode(par, param.IsRef, stream, indent, typename, var, caller);
+                return ParInfoGoExporter.GenerateCode(defaultObj, par, param.IsRef, stream, indent, typename, var, caller);
             }
 
             if (param.Value is VariableDef v)

@@ -102,20 +102,6 @@ namespace PluginBehaviac.DataExporters
                     {
                         param = ParameterGoExporter.GenerateCode(defaultObj, method.Params[i], stream, indent, nativeType, "", param);
                     }
-
-                    if (method.Params[i].Value is VariableDef v && v.ArrayIndexElement != null)
-                    {
-                        PropertyDef prop = method.Params[i].Property;
-
-                        if (prop != null && prop.IsArrayElement)
-                        {
-                            if (string.IsNullOrEmpty(param))
-                            {
-                                string property = PropertyGoExporter.GetProperty(defaultObj, prop, v.ArrayIndexElement, stream, indent, param, caller);
-                                param = string.Format("({0})[{1}]", property, param);
-                            }
-                        }
-                    }
                 }
                 else // const value
                 {

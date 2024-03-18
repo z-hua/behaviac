@@ -26,7 +26,7 @@ namespace PluginBehaviac.DataExporters
         {
             if (property.IsPar || property.IsCustomized)
             {
-                return ParInfoGoExporter.GenerateCode(property, isRefParam, stream, indent, typename, var, caller);
+                return ParInfoGoExporter.GenerateCode(defaultObj, property, isRefParam, stream, indent, typename, var, caller);
             }
 
             string agentName = GetGenerateAgentName(property, var, caller);
