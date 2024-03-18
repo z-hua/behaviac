@@ -81,5 +81,10 @@ namespace PluginBehaviac.NodeExporters
                 stream.WriteLine("}");
             }
         }
+
+        public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            ImportPerformer(stream, imported);
+        }
     }
 }

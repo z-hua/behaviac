@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+using System.Collections.Generic;
 using System.IO;
 using Behaviac.Design;
 using Behaviac.Design.Nodes;
@@ -56,6 +57,8 @@ namespace PluginBehaviac.NodeExporters
             {
                 return;
             }
+
+            stream.WriteLine("\tn.ExecuteFn = n.Execute");
 
             if (action.Method != null && !isNullMethod(action.Method))
             {
@@ -130,7 +133,14 @@ namespace PluginBehaviac.NodeExporters
                         }
                         else
                         {
-                            resultStatus = string.Format("agent.(*types.{0}).{1}(result)", action.Method.ClassName, action.ResultFunctor.BasicName);
+                            if (action.Method.ClassName == "behaviac.Agent")
+                            {
+                                resultStatus = string.Format("agent.{0}(result)", Utilities.ToPascalCase(action.ResultFunctor.BasicName));
+                            }
+                            else
+                            {
+                                resultStatus = string.Format("agent.(*{0}).{1}(result)", Utilities.ToPascalCase(action.Method.ClassName), Utilities.ToPascalCase(action.ResultFunctor.BasicName));
+                            }
                         }
                     }
                 }
@@ -138,6 +148,11 @@ namespace PluginBehaviac.NodeExporters
 
             stream.WriteLine("\treturn {0}", resultStatus);
             stream.WriteLine("}");
+        }
+
+        public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            ImportPerformer(stream, imported);
         }
     }
 }

@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+using System.Collections.Generic;
 using System.IO;
 using Behaviac.Design.Nodes;
 using PluginBehaviac.DataExporters;
@@ -82,28 +83,11 @@ namespace PluginBehaviac.NodeExporters
         protected override void GenerateConstructor(Node node, StringWriter stream, string indent, string className)
         {
             base.GenerateConstructor(node, stream, indent, className);
+        }
 
-            /*if (!(node is ReferencedBehavior pReferencedBehavior))
-            {
-                return;
-            }
-
-            stream.WriteLine("{0}\tstring szTreePath = this.GetReferencedTree(null);", indent);
-            stream.WriteLine("{0}\tif (!string.IsNullOrEmpty(szTreePath)) {{", indent);
-            stream.WriteLine("{0}\tBehaviorTree behaviorTree = Workspace.Instance.LoadBehaviorTree(szTreePath);", indent);
-            stream.WriteLine("{0}\tif (behaviorTree != null)", indent);
-            stream.WriteLine("{0}\t{{", indent);
-            stream.WriteLine("{0}\t\tthis.m_bHasEvents |= behaviorTree.HasEvents();", indent);
-            stream.WriteLine("{0}\t}}", indent);
-            stream.WriteLine("{0}\t}}", indent);
-
-            if (pReferencedBehavior.Task != null)
-            {
-                string method = pReferencedBehavior.Task.GetExportValue();
-                method = method.Replace("\"", "\\\"");
-                stream.WriteLine("{0}\tthis.m_taskMethod = AgentMeta.ParseMethod(\"{1}\");", indent, method);
-                stream.WriteLine("{0}\tDebug.Check(this.m_taskMethod != null);", indent);
-            }*/
+        public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            ImportComposite(stream, imported);
         }
     }
 }

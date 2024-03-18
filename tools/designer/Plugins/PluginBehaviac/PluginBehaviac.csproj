@@ -185,7 +185,6 @@
     <Compile Include="NodeExporters\Go\Attachments\EffectorGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Attachments\EventGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Attachments\PreconditionGoExporter.cs" />
-    <Compile Include="NodeExporters\Go\Composites\TaskGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\WaitforSignalGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\WithPreconditionGoExporter.cs" />
     <Compile Include="NodeExporters\Go\Composites\SelectorLoopGoExporter.cs" />

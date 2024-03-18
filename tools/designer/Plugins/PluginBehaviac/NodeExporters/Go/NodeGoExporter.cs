@@ -16,6 +16,7 @@ using System.IO;
 using System.Reflection;
 using Behaviac.Design.Nodes;
 using Behaviac.Design;
+using System.Collections.Generic;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -134,6 +135,52 @@ namespace PluginBehaviac.NodeExporters
 
         protected virtual void GenerateMethod(Node node, StringWriter stream, string indent, string className)
         {
+        }
+
+        public virtual void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+        }
+
+        private string gitAddress = "gitee.com/z-hua/go_ai/bt/";
+
+        protected void ImportPerformer(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            string import= "performers";
+            if (!imported.ContainsKey(import))
+            {
+                imported[import]= true;
+                stream.WriteLine("import \"{0}\"", gitAddress + import);
+            }
+        }
+
+        protected void ImportCondition(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            string import = "conditions";
+            if (!imported.ContainsKey(import))
+            {
+                imported[import] = true;
+                stream.WriteLine("import \"{0}\"", gitAddress + import);
+            }
+        }
+
+        protected void ImportComposite(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            string import = "composites";
+            if (!imported.ContainsKey(import))
+            {
+                imported[import] = true;
+                stream.WriteLine("import \"{0}\"", gitAddress + import);
+            }
+        }
+
+        protected void ImportDecorator(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            string import = "decorators";
+            if (!imported.ContainsKey(import))
+            {
+                imported[import] = true;
+                stream.WriteLine("import \"{0}\"", gitAddress + import);
+            }
         }
     }
 }

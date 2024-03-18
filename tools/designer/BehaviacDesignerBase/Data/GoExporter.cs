@@ -13,9 +13,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Reflection;
+using System.Windows.Forms;
 using Behaviac.Design.Attributes;
 
 namespace Behaviac.Design
@@ -160,13 +158,27 @@ namespace Behaviac.Design
             }
             else if (Plugin.IsStringType(type))
             {
-                value = "\"" + value + "\"";
+                value = "\"" + value.Trim('"') + "\"";
             }
             else if (Plugin.IsEnumType(type))
             {
-                if (type.Name == "behaviac_EBTStatus")
+                if (type.Name == "behaviac_EBTStatus" || type.Name == "EBTStatus")
                 {
-                    value = "bt.Invalid";
+                    switch (value) 
+                    {
+                        case "BT_SUCCESS":
+                            value = "bt.Success";
+                            break;
+                        case "BT_FAILURE":
+                            value = "bt.Failure";
+                            break;
+                        case "BT_RUNNING":
+                            value = "bt.Running";
+                            break;
+                         default:
+                            value = "bt.Invalid";
+                            break;
+                    }
                 }
                 else
                 {
@@ -208,12 +220,15 @@ namespace Behaviac.Design
                 if (index > 0)
                 {
                     Type itemType = prop.Type.GetGenericArguments()[0];
+                    string itemPropType = GetGeneratedNativeType(itemType);
                     if (!Plugin.IsArrayType(itemType) && !Plugin.IsCustomClassType(itemType))
                     {
-                        //string itemsCount = prop.DefaultValue.Substring(0, index);
-                        string items = prop.DefaultValue.Substring(index + 1).Replace("|", ", ");
-                        //defaultValue = string.Format("new {0}({1}) {{{2}}}", propType, itemsCount, items);
-                        defaultValue = string.Format("{0}{{{1}}}", propType, items);
+                        string[] items = prop.DefaultValue.Substring(index + 1).Split('|');
+                        for (int i = 0; i < items.Length; i++)
+                        {
+                            items[i] = GetGeneratedDefaultValue(itemType, itemPropType, items[i]);
+                        }
+                        defaultValue = string.Format("{0}{{{1}}}", propType, string.Join(", ", items));
                     }
                 }
             }
@@ -221,7 +236,7 @@ namespace Behaviac.Design
             return defaultValue;
         }
 
-        public static string GetPropertyBasicName(Behaviac.Design.PropertyDef property, MethodDef.Param arrayIndexElement)
+        public static string GetPropertyBasicName(PropertyDef property, MethodDef.Param arrayIndexElement)
         {
             if (property != null)
             {
@@ -238,9 +253,9 @@ namespace Behaviac.Design
             return "";
         }
 
-        public static string GetPropertyNativeType(Behaviac.Design.PropertyDef property, MethodDef.Param arrayIndexElement)
+        public static string GetPropertyNativeType(PropertyDef property, MethodDef.Param arrayIndexElement)
         {
-            string nativeType = CsExporter.GetGeneratedNativeType(property.NativeType);
+            string nativeType = GetGeneratedNativeType(property.NativeType);
 
             return nativeType;
         }

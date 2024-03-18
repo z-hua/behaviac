@@ -13,6 +13,8 @@
 
 using Behaviac.Design.Nodes;
 using PluginBehaviac.Nodes;
+using System.Collections.Generic;
+using System.IO;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -26,6 +28,11 @@ namespace PluginBehaviac.NodeExporters
             }
 
             return string.Format("composites.NewSwitch({0})", selectorLoop.ResetChildren ? "true" : "false");
+        }
+
+        public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            ImportComposite(stream, imported);
         }
     }
 }

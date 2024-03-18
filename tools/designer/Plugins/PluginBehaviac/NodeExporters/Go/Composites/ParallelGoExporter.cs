@@ -13,6 +13,8 @@
 
 using Behaviac.Design.Nodes;
 using PluginBehaviac.Nodes;
+using System.Collections.Generic;
+using System.IO;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -83,6 +85,11 @@ namespace PluginBehaviac.NodeExporters
                 default:
                     return "";
             }
+        }
+
+        public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            ImportComposite(stream, imported);
         }
     }
 }

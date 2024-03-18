@@ -11,13 +11,9 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Behaviac.Design;
 using Behaviac.Design.Nodes;
-using Behaviac.Design.Attributes;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -38,6 +34,11 @@ namespace PluginBehaviac.NodeExporters
             }
 
             // stream.WriteLine("{0}\t\t\tm_bDecorateWhenChildEnds = {1};", indent, decorator.DecorateWhenChildEnds ? "true" : "false");
+        }
+
+        public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            ImportDecorator(stream, imported);
         }
     }
 }

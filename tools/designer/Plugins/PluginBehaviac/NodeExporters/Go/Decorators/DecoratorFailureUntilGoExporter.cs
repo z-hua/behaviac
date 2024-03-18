@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+using System.Collections.Generic;
 using System.IO;
 using Behaviac.Design.Nodes;
 using PluginBehaviac.DataExporters;
@@ -55,6 +56,11 @@ namespace PluginBehaviac.NodeExporters
                 stream.WriteLine("\treturn {0}", retStr);
                 stream.WriteLine("}");
             }
+        }
+
+        public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            ImportDecorator(stream, imported);
         }
     }
 }

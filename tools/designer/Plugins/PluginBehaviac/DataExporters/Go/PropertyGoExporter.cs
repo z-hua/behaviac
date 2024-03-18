@@ -129,12 +129,12 @@ namespace PluginBehaviac.DataExporters
                 {
                     index = arrayIndexElement.Value.ToString();
                 }
-                return string.Format("{0}.(*types.{1}).{2}[{3}]", agentName, className, propName, index);
+                return string.Format("{0}.(*{1}).{2}[{3}]", agentName, className, propName, index);
             }
-            return string.Format("{0}.(*types.{1}).{2}", agentName, className, propName);
+            return string.Format("{0}.(*{1}).{2}", agentName, className, propName);
         }
 
-        public static string GetProperty(DefaultObject defaultObj, Behaviac.Design.PropertyDef property, MethodDef.Param arrayIndexElement, StringWriter stream, string indent, string var, string caller)
+        public static string GetProperty(DefaultObject defaultObj, PropertyDef property, MethodDef.Param arrayIndexElement, StringWriter stream, string indent, string var, string caller)
         {
             string agentName = GetGenerateAgentName(property, var, caller);
 

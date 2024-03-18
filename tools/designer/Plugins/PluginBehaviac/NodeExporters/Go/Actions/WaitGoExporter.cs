@@ -16,6 +16,7 @@ using Behaviac.Design;
 using Behaviac.Design.Nodes;
 using PluginBehaviac.Nodes;
 using PluginBehaviac.DataExporters;
+using System.Collections.Generic;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -81,6 +82,11 @@ namespace PluginBehaviac.NodeExporters
                 stream.WriteLine("\treturn {0}", retStr);
                 stream.WriteLine("}");
             }
+        }
+
+        public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            ImportPerformer(stream, imported);
         }
     }
 }

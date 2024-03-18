@@ -33,7 +33,7 @@ namespace PluginBehaviac.Exporters
 
         public override Behaviac.Design.FileManagers.SaveResult Export(List<BehaviorNode> behaviors, bool exportBehaviors, bool exportMeta, int exportFileCount)
         {
-            string behaviorFilename = "behaviors/generated_behaviors.go";
+            string behaviorFilename = "generated_behaviors.go";
             string typesFolder = string.Empty;
             Behaviac.Design.FileManagers.SaveResult result = VerifyFilename(exportBehaviors, ref behaviorFilename, ref typesFolder);
 
@@ -57,7 +57,7 @@ namespace PluginBehaviac.Exporters
         public override void PreviewAgentFile(AgentType agent)
         {
             string behaviacTypesDir = GetBehaviacTypesDir();
-            string tmpFilename = Path.Combine(behaviacTypesDir, agent.BasicName + ".go");
+            string tmpFilename = Path.Combine(behaviacTypesDir, Utilities.ToSnakeCase(agent.BasicName) + ".go");
 
             ExportAgentGoFile(agent, tmpFilename, true);
 
@@ -133,7 +133,7 @@ namespace PluginBehaviac.Exporters
         private Behaviac.Design.FileManagers.SaveResult VerifyFilename(bool exportBehaviors, ref string behaviorFilename, ref string agentFolder)
         {
             behaviorFilename = Path.Combine(_outputFolder, behaviorFilename);
-            agentFolder = Path.Combine(_outputFolder, "types");
+            agentFolder = _outputFolder;
 
             // get the abolute folder of the file we want to export
             string folder = Path.GetDirectoryName(behaviorFilename);
@@ -169,9 +169,6 @@ namespace PluginBehaviac.Exporters
             file.WriteLine("// Export file: {0}", exportFilename);
             file.WriteLine("// ---------------------------------------------------------------------");
             file.WriteLine();
-
-            // write package name
-            file.WriteLine("package trees");
         }
 
         private string getValidFilename(string filename)
@@ -189,7 +186,17 @@ namespace PluginBehaviac.Exporters
             string filename = Path.ChangeExtension(behavior.RelativePath, "").Replace(".", "");
             filename = filename.Replace('\\', '/');
 
+            // write package name
+            file.WriteLine("package behaviac_generated");
             file.WriteLine();
+
+            // write imports
+            file.WriteLine("import \"gitee.com/z-hua/go_ai/bt\"");
+
+            Dictionary<string, bool> imported = new Dictionary<string, bool>();
+            CollectImports(file, (Node)behavior, imported);
+            file.WriteLine();
+
             // write comments
             file.WriteLine("// Source file: {0}", filename);
             file.WriteLine();
@@ -346,13 +353,6 @@ namespace PluginBehaviac.Exporters
                     {
                         file.WriteLine("{0}\t{1}.AddEffector({2})", indent, parentName, nodeName);
                     }
- /*                   string isTransition = attach.IsTransition ? "true" : "false";
-                    file.WriteLine("{0}\t{1}.AddAttach({2}, {3}, {4}, {5});", indent, parentName, nodeName, isPrecondition, isEffector, isTransition);
-
-                    if (attach is Event)
-                    {
-                        file.WriteLine("{0}\t{1}.SetHasEvents({1}.HasEvents() | ({2} is Event));", indent, parentName, nodeName);
-                    }*/
 
                     file.WriteLine("}");
                 }
@@ -378,6 +378,25 @@ namespace PluginBehaviac.Exporters
                 foreach (Node child in node.GetChildNodes())
                 {
                     ExportNodeClass(file, btClassName, agentType, behavior, child);
+                }
+            }
+        }
+
+        private void CollectImports(StringWriter file, Node node, Dictionary<string, bool> imported)
+        {
+            if (!node.Enable)
+            {
+                return;
+            }
+
+            NodeGoExporter nodeExporter = NodeGoExporter.CreateInstance(node);
+            nodeExporter.CollectImport(file, imported);
+
+            if (!(node is ReferencedBehavior))
+            {
+                foreach (Node child in node.GetChildNodes())
+                {
+                    CollectImports(file, child, imported);
                 }
             }
         }
@@ -454,8 +473,9 @@ namespace PluginBehaviac.Exporters
                     continue;
                 }
 
-                string agentFolder = string.IsNullOrEmpty(agent.ExportLocation) ? defaultAgentFolder : Workspace.Current.MakeAbsolutePath(agent.ExportLocation);
-                string filename = Path.Combine(agentFolder, agent.BasicName + ".go");
+                //string agentFolder = string.IsNullOrEmpty(agent.ExportLocation) ? defaultAgentFolder : Workspace.Current.MakeAbsolutePath(agent.ExportLocation);
+                string agentFolder = defaultAgentFolder;
+                string filename = Path.Combine(agentFolder, Utilities.ToSnakeCase(agent.BasicName) + ".go");
                 string oldFilename = "";
 
                 if (!string.IsNullOrEmpty(agent.OldName) && agent.OldName != agent.Name)
@@ -516,8 +536,16 @@ namespace PluginBehaviac.Exporters
                 ExportFileWarningHeader(file);
 
                 // 生成包名
-                file.WriteLine("package types");
+                file.WriteLine("package behaviac_generated");
                 file.WriteLine();
+
+                if (!preview)
+                {
+                    ExportBeginComment(file, indent, file_init_part);
+                    file.WriteLine();
+                    ExportEndComment(file, indent);
+                    file.WriteLine();
+                }
 
                 string structName = Utilities.ToPascalCase(agent.BasicName);
 

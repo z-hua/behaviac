@@ -37,11 +37,6 @@ namespace PluginBehaviac.DataExporters
 
                         for (int i = 0; i < list.Count; ++i)
                         {
-                            string itemName = string.Format("{0}_item{1}", var.Replace(".", "_"), i);
-
-                            //DataGoExporter.GenerateCode(list[i], defaultObj, stream, indent, itemTypename, itemName, string.Empty);
-
-                            // stream.WriteLine("{0}{1} = append(var, {2});", indent, var, itemName);
                             string itemValue = DataGoExporter.GenerateCode(list[i], defaultObj, stream, indent, itemTypename, "", string.Empty);
                             stream.Write(itemValue);
                             if (i < list.Count - 1)

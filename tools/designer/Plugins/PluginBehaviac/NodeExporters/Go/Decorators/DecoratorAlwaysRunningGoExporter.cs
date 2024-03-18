@@ -13,6 +13,8 @@
 
 using Behaviac.Design.Nodes;
 using PluginBehaviac.Nodes;
+using System.Collections.Generic;
+using System.IO;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -26,6 +28,11 @@ namespace PluginBehaviac.NodeExporters
         protected override string GetNodeBehavior(Node node, string btClassName, string nodeName)
         {
             return "decorators.NewAlwaysRunning()";
+        }
+
+        public override void CollectImport(StringWriter stream, Dictionary<string, bool> imported)
+        {
+            ImportDecorator(stream, imported);
         }
     }
 }

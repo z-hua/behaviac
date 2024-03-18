@@ -673,7 +673,7 @@ namespace Behaviac.Design
                 {
                     result += '_';
                 }
-                result += s[i];
+                result += char.ToLower(s[i]);
             }
             return result;
         }

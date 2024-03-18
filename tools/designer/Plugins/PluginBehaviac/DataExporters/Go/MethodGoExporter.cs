@@ -144,7 +144,16 @@ namespace PluginBehaviac.DataExporters
             }
 
             string className = method.ClassName.Replace("::", ".");
-            string retStr = string.Format("agent.(*types.{0}).{1}({2})", className, method.BasicName, allParams);
+            string retStr;
+            if (className == "behaviac.Agent")
+            {
+                retStr = string.Format("agent.{0}({1})", Utilities.ToPascalCase(method.BasicName), allParams);
+            }
+            else
+            {
+                retStr = string.Format("agent.(*{0}).{1}({2})", className, Utilities.ToPascalCase(method.BasicName), allParams);
+            }
+            
 
             if (!string.IsNullOrEmpty(var))
             {
@@ -154,7 +163,7 @@ namespace PluginBehaviac.DataExporters
             return retStr;
         }
 
-        public static void PostGenerateCode(Behaviac.Design.MethodDef method, StringWriter stream, string indent, string typename, string var, string caller)
+        public static void PostGenerateCode(MethodDef method, StringWriter stream, string indent, string typename, string var, string caller)
         {
             string paramsName = getParamsName(var, caller);
 
