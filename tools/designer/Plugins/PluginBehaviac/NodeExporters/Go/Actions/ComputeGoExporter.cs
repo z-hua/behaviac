@@ -36,6 +36,8 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
+            stream.WriteLine("\tn.Behavior = n");
+
             if (compute.Opr1 != null)
             {
                 RightValueGoExporter.GenerateClassConstructor(node, compute.Opr1, stream, indent, "opr1");

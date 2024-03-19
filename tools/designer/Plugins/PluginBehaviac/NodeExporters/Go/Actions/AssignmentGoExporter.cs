@@ -36,7 +36,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tn.Assign= n.DoAssign");
+            stream.WriteLine("\tn.Behavior = n");
 
             if (assignment.Opr != null)
             {
@@ -70,7 +70,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) DoAssign(agent bt.IAgent) {{", className);
+            stream.WriteLine("func (n *{0}) Assign(agent bt.IAgent) {{", className);
 
             if (assignment.Opl != null && assignment.Opr != null)
             {
@@ -84,24 +84,12 @@ namespace PluginBehaviac.NodeExporters
 
                     string oprStr = "opr";
 
-/*                    if (!Plugin.IsArrayType(prop.Type))
-                    {
-                        if (assignment.Opr.Var != null && assignment.Opr.Var.ArrayIndexElement != null)
-                        {
-                            ParameterGoExporter.GenerateCode(node, assignment.Opr.Var.ArrayIndexElement, stream, indent + "\t", "int", "opr_index", "assignment_opr");
-                            oprStr = string.Format("({0})[opr_index]", oprStr);
-                        }
-                    }*/
-
                     if (!prop.IsArrayElement && (prop.IsPar || prop.IsCustomized))
                     {
                         string v = prop.BasicName.Replace("[]", "");
                         string propBasicName = v;
-                        uint id = CRC32.CalcCRC(propBasicName);
                         string agentName = PropertyGoExporter.GetGenerateAgentName(prop, "opl", "assignment");
-                        string typename = GoExporter.GetGeneratedNativeType(prop.NativeType);
-
-                        stream.WriteLine("{0}\t\t\t{1}.SetVariable<{2}>(\"{3}\", {4}u, {5});", indent, agentName, typename, propBasicName, id, oprStr);
+                        stream.WriteLine("{0}\t{1}.SetLocal(\"{2}\", {3})", indent, agentName, propBasicName, oprStr);
                     }
                     else
                     {

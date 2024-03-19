@@ -63,18 +63,8 @@ namespace PluginBehaviac.DataExporters
 
         public static void PostGenerateCode(PropertyDef property, MethodDef.Param arrayIndexElement, StringWriter stream, string indent, string typename, string var, string caller)
         {
-            if (string.IsNullOrEmpty(typename))
-            {
-                typename = property.NativeType;
-            }
-
-            typename = GoExporter.GetGeneratedNativeType(typename);
-
             string propBasicName = property.BasicName.Replace("[]", "");
-            uint id = CRC32.CalcCRC(propBasicName);
-
-            stream.WriteLine("{0}Debug.Check(behaviac.Utils.MakeVariableId(\"{1}\") == {2}u);", indent, propBasicName, id);
-            stream.WriteLine("{0}pAgent.SetVariable<{1}>(\"{2}\", {3}u, ({1}){4});", indent, typename, property.Name, id, var);
+            stream.WriteLine("{0}agent.SetLocal(\"{1}\", {2})", indent, propBasicName, var);
         }
 
         public static string GetProperty(string agentName, PropertyDef property, MethodDef.Param arrayIndexElement, StringWriter stream, string indent)
@@ -83,18 +73,8 @@ namespace PluginBehaviac.DataExporters
 
             if (property != null)
             {
-                string typename = GoExporter.GetGeneratedNativeType(property.NativeType);
-
-                if (property.IsArrayElement && !typename.StartsWith("List<"))
-                {
-                    typename = string.Format("List<{0}>", typename);
-                }
-
                 string propBasicName = property.BasicName.Replace("[]", "");
-                uint id = CRC32.CalcCRC(propBasicName);
-
-                stream.WriteLine("{0}Debug.Check(behaviac.Utils.MakeVariableId(\"{1}\") == {2}u);", indent, propBasicName, id);
-                retStr = string.Format("{0}.GetVariable<{1}>({2}u)", agentName, typename, id);
+                retStr = string.Format("{0}.GetLocal(\"{1}\")", agentName, propBasicName);
             }
 
             return retStr;

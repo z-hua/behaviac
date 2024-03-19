@@ -36,6 +36,8 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
+            stream.WriteLine("\tn.Behavior = n");
+
             if (wait.Time != null)
             {
                 RightValueGoExporter.GenerateClassConstructor(node, wait.Time, stream, indent, "Time");
@@ -70,7 +72,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (wait.Time != null)
             {
-                stream.WriteLine("func (n *{0}) GetTime(agent bt.IAgent) int {{", className);
+                stream.WriteLine("func (n *{0}) GetDuration(agent bt.IAgent) int {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, wait.Time, stream, indent + "\t\t\t", string.Empty, string.Empty, "Time");
 

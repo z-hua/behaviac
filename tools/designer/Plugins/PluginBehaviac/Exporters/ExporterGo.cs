@@ -88,10 +88,17 @@ namespace PluginBehaviac.Exporters
         {
             using (StringWriter file = new StringWriter())
             {
-                ExportHead(file, filename);
-
                 if (exportFileCount == 1)
                 {
+                    ExportHead(file, filename);
+
+                    Dictionary<string, bool> imported = new Dictionary<string, bool>();
+
+                    foreach (BehaviorNode behavior in behaviors)
+                    {
+                        ExportImport(file, behavior, imported);
+                    }
+
                     foreach (BehaviorNode behavior in behaviors)
                     {
                         ExportBody(file, behavior);
@@ -104,7 +111,6 @@ namespace PluginBehaviac.Exporters
                         string behaviorFilename = behavior.RelativePath;
                         behaviorFilename = behaviorFilename.Replace("\\", "/");
                         behaviorFilename = Path.ChangeExtension(behaviorFilename, "go");
-                        behaviorFilename = Path.Combine("behaviors", behaviorFilename);
 
                         string agentFolder = string.Empty;
 
@@ -116,9 +122,10 @@ namespace PluginBehaviac.Exporters
                             {
                                 ExportHead(behaviorFile, behaviorFilename);
 
-                                ExportBody(behaviorFile, behavior);
+                                Dictionary<string, bool> imported = new Dictionary<string, bool>();
+                                ExportImport(behaviorFile, behavior, imported);
 
-                                ExportTail(behaviorFile);
+                                ExportBody(behaviorFile, behavior);
 
                                 UpdateFile(behaviorFile, behaviorFilename);
                             }
@@ -169,6 +176,12 @@ namespace PluginBehaviac.Exporters
             file.WriteLine("// Export file: {0}", exportFilename);
             file.WriteLine("// ---------------------------------------------------------------------");
             file.WriteLine();
+
+            // write package name
+            file.WriteLine("package behaviac_generated");
+            file.WriteLine();
+
+            file.WriteLine("import \"gitee.com/z-hua/go_ai/bt\"");
         }
 
         private string getValidFilename(string filename)
@@ -179,23 +192,19 @@ namespace PluginBehaviac.Exporters
             return filename;
         }
 
+        private void ExportImport(StringWriter file, BehaviorNode behavior, Dictionary<string, bool> imported)
+        {
+            // write imports
+            CollectImports(file, (Node)behavior, imported);
+            file.WriteLine();
+        }
+
         private void ExportBody(StringWriter file, BehaviorNode behavior)
         {
             behavior.PreExport();
 
             string filename = Path.ChangeExtension(behavior.RelativePath, "").Replace(".", "");
             filename = filename.Replace('\\', '/');
-
-            // write package name
-            file.WriteLine("package behaviac_generated");
-            file.WriteLine();
-
-            // write imports
-            file.WriteLine("import \"gitee.com/z-hua/go_ai/bt\"");
-
-            Dictionary<string, bool> imported = new Dictionary<string, bool>();
-            CollectImports(file, (Node)behavior, imported);
-            file.WriteLine();
 
             // write comments
             file.WriteLine("// Source file: {0}", filename);
@@ -230,7 +239,7 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine("\t\t\tbt.SetDescriptors(\"{0}\");", DesignerPropertyUtility.RetrieveExportValue(((Behavior)behavior).DescriptorRefs));
             }
 
-            //ExportPars(file, agentType, "t", (Node)behavior, "");
+            ExportPars(file, agentType, "t", (Node)behavior, "");
 
             // export its attachments
             ExportAttachment(file, btClassName, agentType, "t", (Node)behavior, "\t\t\t");
@@ -273,12 +282,6 @@ namespace PluginBehaviac.Exporters
             behavior.PostExport();
         }
 
-        private void ExportTail(StringWriter file)
-        {
-            // close namespace
-            file.WriteLine("}");
-        }
-
         private void ExportPars(StringWriter file, string agentType, string nodeName, Node node, string indent)
         {
             if (node is Behavior behavior)
@@ -296,10 +299,9 @@ namespace PluginBehaviac.Exporters
                 for (int i = 0; i < pars.Count; ++i)
                 {
                     string name = pars[i].BasicName;
-                    string type = GoExporter.GetGeneratedParType(pars[i].Type);
-                    string value = pars[i].DefaultValue.Replace("\"", "\\\"");
+                    string value = GoExporter.GetGeneratedPropertyDefaultValue(pars[i]);
 
-                    file.WriteLine("{0}\t{1}.AddLocal(\"{2}\", {3}({4}))", indent, nodeName, name, type, value);
+                    file.WriteLine("{0}\t{1}.AddLocal(\"{2}\", {3})", indent, nodeName, name, value);
                 }
             }
         }
@@ -425,7 +427,7 @@ namespace PluginBehaviac.Exporters
             NodeGoExporter nodeExporter = NodeGoExporter.CreateInstance(node);
             nodeExporter.GenerateInstance(node, file, indent, nodeName, agentType, btClassName);
             
-            //ExportPars(file, agentType, nodeName, node, indent);
+            ExportPars(file, agentType, nodeName, node, indent);
 
             ExportAttachment(file, btClassName, agentType, nodeName, node, indent + "\t");
 

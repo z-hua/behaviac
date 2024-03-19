@@ -35,12 +35,13 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
+            stream.WriteLine("\tn.Behavior = n");
+            stream.WriteLine("\tn.EndOutside = {0}", end.EndOutside ? "true" : "false");
+
             if (end.EndStatus != null)
             {
                 RightValueGoExporter.GenerateClassConstructor(node, end.EndStatus, stream, indent, "EndStatus");
             }
-
-            stream.WriteLine("\tb.EndOutside = {0}", end.EndOutside ? "true": "false");
         }
 
         protected override void GenerateMember(Node node, StringWriter stream, string indent)

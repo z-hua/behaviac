@@ -39,6 +39,8 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
+            stream.WriteLine("\tn.Behavior = n");
+
             if (waitFrames.Frames != null)
             {
                 RightValueGoExporter.GenerateClassConstructor(node, waitFrames.Frames, stream, indent, "Frames");
