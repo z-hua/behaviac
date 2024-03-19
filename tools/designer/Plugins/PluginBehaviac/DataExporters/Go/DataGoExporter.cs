@@ -72,19 +72,7 @@ namespace PluginBehaviac.DataExporters
                 {
                     retStr = var;
 
-                    if (!string.IsNullOrEmpty(typename))
-                    {
-                        //stream.WriteLine("{0}{1} {2};", indent, typename, var);
-                    }
-                    else
-                    {
-                        typename = DataGoExporter.GetGeneratedNativeType(type);
-                    }
-
-                    /*int startIndex = typename.IndexOf('<');
-                    int endIndex = typename.LastIndexOf('>');
-                    string itemType = typename.Substring(startIndex + 1, endIndex - startIndex - 1);*/
-
+                    typename = DataGoExporter.GetGeneratedNativeType(type);
                     ArrayGoExporter.GenerateCode(obj, defaultObj, stream, indent, typename, var);
                 }
                 // Struct type

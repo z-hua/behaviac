@@ -35,27 +35,14 @@ namespace PluginBehaviac.NodeExporters
             );
         }
 
-        private string GetFailurePolicy(FailurePolicy policy)
-        {
-            switch (policy)
-            {
-                case FailurePolicy.FAIL_ON_ONE:
-                    return "composites.ParallelFailureOnOne";
-                case FailurePolicy.FAIL_ON_ALL:
-                    return "composites.ParallelFailureOnAll";
-                default:
-                    return "";
-            }
-        }
-
         private string GetSuccessPolicy(SuccessPolicy policy)
         {
             switch (policy)
             {
                 case SuccessPolicy.SUCCEED_ON_ONE:
-                    return "composites.ParallelSuccessOnOne";
+                    return "composites.SuccessOnOne";
                 case SuccessPolicy.SUCCEED_ON_ALL:
-                    return "composites.ParallelSuccessOnAll";
+                    return "composites.SuccessOnAll";
                 default:
                     return "";
             }
@@ -66,9 +53,9 @@ namespace PluginBehaviac.NodeExporters
             switch (policy)
             {
                 case ExitPolicy.EXIT_NONE:
-                    return "composites.ParallelExitNone";
+                    return "composites.ExitNone";
                 case ExitPolicy.EXIT_ABORT_RUNNINGSIBLINGS:
-                    return "composites.ParallelExitAbort";
+                    return "composites.ExitAbort";
                 default:
                     return "";
             }
@@ -79,9 +66,9 @@ namespace PluginBehaviac.NodeExporters
             switch (policy)
             {
                 case ChildFinishPolicy.CHILDFINISH_ONCE:
-                    return "composites.ParallelChildFinishOnce";
+                    return "composites.ChildFinishOnce";
                 case ChildFinishPolicy.CHILDFINISH_LOOP:
-                    return "composites.ParallelChildFinishLoop";
+                    return "composites.ChildFinishLoop";
                 default:
                     return "";
             }
