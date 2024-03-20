@@ -26,6 +26,18 @@ namespace PluginBehaviac.NodeExporters
             return node is DecoratorCount;
         }
 
+        protected override void GenerateConstructor(Node node, StringWriter stream, string indent, string className)
+        {
+            base.GenerateConstructor(node, stream, indent, className);
+
+            if (!(node is DecoratorCount))
+            {
+                return;
+            }
+
+            stream.WriteLine("\tn.Behavior = n");
+        }
+
         protected override void GenerateMember(Node node, StringWriter stream, string indent)
         {
             base.GenerateMember(node, stream, indent);
