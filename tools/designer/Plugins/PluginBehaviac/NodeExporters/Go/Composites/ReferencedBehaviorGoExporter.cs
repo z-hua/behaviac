@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using Behaviac.Design.Nodes;
 using PluginBehaviac.DataExporters;
+using PluginBehaviac.Nodes;
 
 namespace PluginBehaviac.NodeExporters
 {
@@ -23,6 +24,17 @@ namespace PluginBehaviac.NodeExporters
         protected override bool ShouldGenerateClass(Node node)
         {
             return node is ReferencedBehavior;
+        }
+
+        protected override void GenerateConstructor(Node node, StringWriter stream, string indent, string className)
+        {
+            base.GenerateConstructor(node, stream, indent, className);
+            if (!(node is ReferencedBehavior))
+            {
+                return;
+            }
+
+            stream.WriteLine("\tn.GetSubtree = n.doGetSubtree");
         }
 
         protected override void GenerateMember(Node node, StringWriter stream, string indent)
@@ -53,7 +65,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (pReferencedBehavior.ReferenceBehavior != null)
             {
-                stream.WriteLine("func (n *{0}) GetSubtree(agent bt.IAgent) string {{", className);
+                stream.WriteLine("func (n *{0}) doGetSubtree(agent bt.IAgent) string {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, pReferencedBehavior.ReferenceBehavior, stream, indent + "\t", string.Empty, string.Empty, "Behavior");
 

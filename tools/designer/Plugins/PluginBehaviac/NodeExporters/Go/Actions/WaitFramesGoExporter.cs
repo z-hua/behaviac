@@ -39,7 +39,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tn.Behavior = n");
+            stream.WriteLine("\tn.GetFrames = n.doGetFrames");
 
             if (waitFrames.Frames != null)
             {
@@ -75,7 +75,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (waitFrames.Frames != null)
             {
-                stream.WriteLine("func (n *{0}) GetFrames(agent bt.IAgent) int {{", className);
+                stream.WriteLine("func (n *{0}) doGetFrames(agent bt.IAgent) int {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, waitFrames.Frames, stream, indent + "\t\t\t", string.Empty, string.Empty, "Frames");
 

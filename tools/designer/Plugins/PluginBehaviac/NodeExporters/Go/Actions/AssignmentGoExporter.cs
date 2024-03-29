@@ -36,7 +36,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tn.Behavior = n");
+            stream.WriteLine("\tn.Assign = n.doAssign");
 
             if (assignment.Opr != null)
             {
@@ -70,7 +70,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) Assign(agent bt.IAgent) {{", className);
+            stream.WriteLine("func (n *{0}) doAssign(agent bt.IAgent) {{", className);
 
             if (assignment.Opl != null && assignment.Opr != null)
             {

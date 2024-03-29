@@ -29,6 +29,17 @@ namespace PluginBehaviac.NodeExporters
             return node is DecoratorWeight;
         }
 
+        protected override void GenerateConstructor(Node node, StringWriter stream, string indent, string className)
+        {
+            base.GenerateConstructor(node, stream, indent, className);
+            if (!(node is DecoratorWeight))
+            {
+                return;
+            }
+
+            stream.WriteLine("\tn.GetWeight = n.doGetWeight");
+        }
+
         protected override void GenerateMember(Node node, StringWriter stream, string indent)
         {
             base.GenerateMember(node, stream, indent);
@@ -52,7 +63,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (decoratorWeight.Weight != null)
             {
-                stream.WriteLine("func (n *{0}) GetWeight(agent bt.IAgent) int {{", className);
+                stream.WriteLine("func (n *{0}) doGetWeight(agent bt.IAgent) int {{", className);
 
                 string retStr = VariableGoExporter.GenerateCode(node, decoratorWeight.Weight, false, stream, indent + "\t\t\t", string.Empty, string.Empty, string.Empty);
 

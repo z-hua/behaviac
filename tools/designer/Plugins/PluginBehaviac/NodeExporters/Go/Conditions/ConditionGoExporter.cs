@@ -35,6 +35,8 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
+            stream.WriteLine("\tn.Compare = n.doCompare");
+
             if (condition.Opl != null)
             {
                 RightValueGoExporter.GenerateClassConstructor(node, condition.Opl, stream, indent, "opl");
@@ -114,7 +116,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) Compare(agent bt.IAgent) bool {{", className);
+            stream.WriteLine("func (n *{0}) doCompare(agent bt.IAgent) bool {{", className);
 
             // opl
             ConditionGoExporter.GenerateOperand(node, stream, indent + "\t", condition.Opl, "opl", "condition");

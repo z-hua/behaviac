@@ -35,8 +35,8 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tn.Behavior = n");
             stream.WriteLine("\tn.EndOutside = {0}", end.EndOutside ? "true" : "false");
+            stream.WriteLine("\tn.GetStatus = n.doGetStatus");
 
             if (end.EndStatus != null)
             {
@@ -72,7 +72,7 @@ namespace PluginBehaviac.NodeExporters
 
             if (end.EndStatus != null)
             {
-                stream.WriteLine("func (n *{0}) GetStatus(agent bt.IAgent) bt.Status {{", className);
+                stream.WriteLine("func (n *{0}) doGetStatus(agent bt.IAgent) bt.Status {{", className);
 
                 string retStr = RightValueGoExporter.GenerateCode(node, end.EndStatus, stream, indent + "\t", string.Empty, string.Empty, "EndStatus");
 

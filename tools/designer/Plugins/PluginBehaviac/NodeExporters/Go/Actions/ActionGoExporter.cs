@@ -58,7 +58,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tn.Behavior = n");
+            stream.WriteLine("\tn.Execute = n.doExecute");
 
             if (action.Method != null && !isNullMethod(action.Method))
             {
@@ -92,7 +92,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) Execute(agent bt.IAgent) bt.Status {{", className);
+            stream.WriteLine("func (n *{0}) doExecute(agent bt.IAgent) bt.Status {{", className);
 
             string resultStatus = getResultOptionStr(action.ResultOption);
 

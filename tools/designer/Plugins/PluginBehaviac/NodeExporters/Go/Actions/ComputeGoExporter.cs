@@ -36,7 +36,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("\tn.Behavior = n");
+            stream.WriteLine("\tn.Calculate = n.doCalculate");
 
             if (compute.Opr1 != null)
             {
@@ -80,7 +80,7 @@ namespace PluginBehaviac.NodeExporters
                 return;
             }
 
-            stream.WriteLine("func (n *{0}) Calculate(agent bt.IAgent) {{", className);
+            stream.WriteLine("func (n *{0}) doCalculate(agent bt.IAgent) {{", className);
 
             if (compute.Opl != null && compute.Opr1 != null && compute.Opr2 != null)
             {
